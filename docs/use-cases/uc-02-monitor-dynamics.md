@@ -84,11 +84,11 @@ Verbatim from the `schema/ietf-geo-location@2022-02-11.yang` schema:
 
 ## 8. Realization Matrix
 ### Required User Stories
-- [ ] #8 - [Velocity Vector to Speed and Heading Calculation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Realizes derived dynamics calculations)
-- [ ] #9 - [Geolocation Temporal Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Realizes temporal expiration check)
+- [x] #8 - [Velocity Vector to Speed and Heading Calculation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Realizes derived dynamics calculations)
+- [x] #9 - [Geolocation Temporal Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Realizes temporal expiration check)
 
 ### Required Features
-- [ ] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides velocity and temporal attributes)
+- [x] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides velocity and temporal attributes)
 
 ## Source References
 Structural Schema: [ietf-geo-location@2022-02-11.yang](file:///Users/perkunas/jail/dep-tst37/schema/ietf-geo-location@2022-02-11.yang)

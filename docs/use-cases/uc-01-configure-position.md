@@ -95,13 +95,13 @@ stateDiagram-v2
 
 ## 8. Realization Matrix
 ### Required User Stories
-- [ ] #5 - [Ellipsoidal Positioning on Earth](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) ([us-01-ellipsoidal-positioning.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-01-ellipsoidal-positioning.md)) (Realizes standard GPS coordinate setup)
-- [ ] #6 - [Cartesian Coordinate Positioning](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) ([us-02-cartesian-positioning.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-02-cartesian-positioning.md)) (Realizes 3D spatial positioning)
-- [ ] #7 - [Alternate Reference System Simulation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) ([us-03-alternate-reference-system.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-03-alternate-reference-system.md)) (Realizes alternate simulations)
+- [x] #5 - [Ellipsoidal Positioning on Earth](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) ([us-01-ellipsoidal-positioning.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-01-ellipsoidal-positioning.md)) (Realizes standard GPS coordinate setup)
+- [x] #6 - [Cartesian Coordinate Positioning](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) ([us-02-cartesian-positioning.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-02-cartesian-positioning.md)) (Realizes 3D spatial positioning)
+- [x] #7 - [Alternate Reference System Simulation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) ([us-03-alternate-reference-system.md](file:///Users/perkunas/jail/dep-tst37/docs/user-stories/us-03-alternate-reference-system.md)) (Realizes alternate simulations)
 
 ### Required Features
-- [ ] #1 - [Reference Frame Configuration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-01-reference-frame.md) ([feat-01-reference-frame.md](file:///Users/perkunas/jail/dep-tst37/docs/features/feat-01-reference-frame.md)) (Provides geodetic systems settings)
-- [ ] #2 - [Geographic Position Resolution](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-02-geographic-position.md) ([feat-02-geographic-position.md](file:///Users/perkunas/jail/dep-tst37/docs/features/feat-02-geographic-position.md)) (Provides spatial coordinates settings)
+- [x] #1 - [Reference Frame Configuration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-01-reference-frame.md) ([feat-01-reference-frame.md](file:///Users/perkunas/jail/dep-tst37/docs/features/feat-01-reference-frame.md)) (Provides geodetic systems settings)
+- [x] #2 - [Geographic Position Resolution](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-02-geographic-position.md) ([feat-02-geographic-position.md](file:///Users/perkunas/jail/dep-tst37/docs/features/feat-02-geographic-position.md)) (Provides spatial coordinates settings)
 
 ## Source References
 Structural Schema: [ietf-geo-location@2022-02-11.yang](file:///Users/perkunas/jail/dep-tst37/schema/ietf-geo-location@2022-02-11.yang)

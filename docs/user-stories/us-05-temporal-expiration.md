@@ -45,7 +45,7 @@ Verbatim quote from the `schema/ietf-geo-location@2022-02-11.yang` schema:
 > The timestamp for which this geo-location is valid until. If unspecified, the geo-location has no specific expiration time.
 
 ## Required Features Matrix
-- [ ] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides valid-until and timestamp fields)
+- [x] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides valid-until and timestamp fields)
 
 ## Source References
 Structural Schema: [ietf-geo-location@2022-02-11.yang](file:///Users/perkunas/jail/dep-tst37/schema/ietf-geo-location@2022-02-11.yang)

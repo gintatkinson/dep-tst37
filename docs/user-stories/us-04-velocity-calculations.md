@@ -43,7 +43,7 @@ Verbatim from RFC 9179, Section 2.3 (Motion):
 >     heading = arctan(v_{east} / v_{north})
 
 ## Required Features Matrix
-- [ ] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides v-north and v-east velocity coordinates)
+- [x] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Provides v-north and v-east velocity coordinates)
 
 ## Source References
 Structural Schema: [ietf-geo-location@2022-02-11.yang](file:///Users/perkunas/jail/dep-tst37/schema/ietf-geo-location@2022-02-11.yang)

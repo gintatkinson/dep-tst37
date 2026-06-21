@@ -15,22 +15,22 @@ The `ietf-geo-location` module defines a grouping for a geographic location cont
 "This module defines a grouping of a container object for specifying a location on or around an astronomical object (e.g., 'earth')."
 
 ## 2. Requirements & Checklist
-- [ ] #1 - [Reference Frame Configuration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-01-reference-frame.md) (Defines coordinates system, datum, body and accuracies)
-- [ ] #2 - [Geographic Position Resolution](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-02-geographic-position.md) (Enables choosing between ellipsoidal and Cartesian coordinate types)
-- [ ] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Models 3D velocity vectors and timestamps)
+- [x] #1 - [Reference Frame Configuration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-01-reference-frame.md) (Defines coordinates system, datum, body and accuracies)
+- [x] #2 - [Geographic Position Resolution](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-02-geographic-position.md) (Enables choosing between ellipsoidal and Cartesian coordinate types)
+- [x] #3 - [Geolocation Dynamics and Temporal Context](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-03-dynamics-temporal.md) (Models 3D velocity vectors and timestamps)
 
 ### Associated Use Cases & User Stories
 
 #### Associated Use Cases
-- [ ] #10 - [Configure Frame of Reference and Position](https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-01-configure-position.md) (Standard spatial configuration use case)
-- [ ] #11 - [Monitor Dynamic Geolocation and Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-02-monitor-dynamics.md) (Active tracking and validity use case)
+- [x] #10 - [Configure Frame of Reference and Position](https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-01-configure-position.md) (Standard spatial configuration use case)
+- [x] #11 - [Monitor Dynamic Geolocation and Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-02-monitor-dynamics.md) (Active tracking and validity use case)
 
 #### Associated User Stories
-- [ ] #5 - [Ellipsoidal Positioning on Earth](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) (Standard positioning scenario)
-- [ ] #6 - [Cartesian Coordinate Positioning](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) (Alternative spatial representation)
-- [ ] #7 - [Alternate Reference System Simulation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) (Virtual realities / alternate bodies)
-- [ ] #8 - [Velocity Vector to Speed and Heading Calculation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Algorithmic speed/heading calculations)
-- [ ] #9 - [Geolocation Temporal Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Validity decay handling)
+- [x] #5 - [Ellipsoidal Positioning on Earth](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) (Standard positioning scenario)
+- [x] #6 - [Cartesian Coordinate Positioning](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) (Alternative spatial representation)
+- [x] #7 - [Alternate Reference System Simulation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) (Virtual realities / alternate bodies)
+- [x] #8 - [Velocity Vector to Speed and Heading Calculation](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Algorithmic speed/heading calculations)
+- [x] #9 - [Geolocation Temporal Expiration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Validity decay handling)
 ## 3. Architecture and System Interaction Diagrams
 
 ### Subsystem Component Definition
