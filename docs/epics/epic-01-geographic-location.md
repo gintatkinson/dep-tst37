@@ -11,6 +11,9 @@ generation_mode: subagent
 ## 1. Context
 The `ietf-geo-location` module defines a grouping for a geographic location container suitable for referencing positions on or around astronomical objects (e.g., Earth). The specification supports configure-once reference systems and datum definitions, choosing between ellipsoidal and Cartesian coordinates, modeling 3D velocity vectors for moving objects, and establishing temporal validity constraints (timestamps and expiration times) to manage geolocation validity decay.
 
+### Specification Context
+"This module defines a grouping of a container object for specifying a location on or around an astronomical object (e.g., 'earth')."
+
 ## 2. Requirements & Checklist
 - [ ] #1 - [Reference Frame Configuration](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-01-reference-frame.md) (Defines coordinates system, datum, body and accuracies)
 - [ ] #2 - [Geographic Position Resolution](https://github.com/gintatkinson/dep-tst37/blob/main/docs/features/feat-02-geographic-position.md) (Enables choosing between ellipsoidal and Cartesian coordinate types)
@@ -84,8 +87,6 @@ classDiagram
     GeolocationSubsystem *-- TemporalContext
 ```
 
-## 4. State Machine Definitions
-
 ## System State Machine Diagram
 ```mermaid
 stateDiagram-v2
@@ -97,15 +98,12 @@ stateDiagram-v2
     Expired --> [*]
 ```
 
-## 5. Specification Context
-"This module defines a grouping of a container object for specifying a location on or around an astronomical object (e.g., 'earth')."
-
-## 6. Operational Considerations
+## 4. Operational Considerations
 Operational deployment of the Geolocation subsystem requires careful monitoring of coordinate update frequencies and spatial resolution limits. High-frequency velocity and telemetry streams must be throttled to prevent resource exhaustion. Validity checks on `valid-until` timestamps must be executed periodically to ensure dynamic locations are pruned or refreshed.
 
-## 7. Security & Governance
+## 5. Security & Governance
 Access control to location configurations must be governed strictly using standard NETCONF Access Control Model (NACM). Modifications to the reference frame or coordinates require high privilege levels. Ingestion filters must validate and sanitize all coordinate ranges (e.g. latitude within `[-90..90]`, longitude within `[-180..180]`) and format pattern constraints to prevent injection or corruption of the spatial database.
 
-## 8. Source References
+## 6. Source References
 Structural Schema: schema/ietf-geo-location@2022-02-11.yang
 Normative Specification: https://datatracker.ietf.org/doc/rfc9179/
