@@ -1,3 +1,12 @@
+---
+title: "Geolocation Dynamics and Temporal Context"
+epic: "epic-01-geo-location"
+type: "feature"
+interface_type: "ui"
+labels: ["feature", "geo-location"]
+issue_id: 3
+---
+
 # Feature: Geolocation Dynamics and Temporal Context
 
 ## Description
