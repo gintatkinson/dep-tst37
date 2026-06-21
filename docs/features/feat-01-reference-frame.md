@@ -1,6 +1,6 @@
 ---
 title: "Reference Frame Configuration"
-epic: "epic-01-geo-location"
+epic: "Geographic Location Representation"
 type: "feature"
 interface_type: "ui"
 generation_mode: "subagent"

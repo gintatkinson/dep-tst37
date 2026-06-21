@@ -517,7 +517,7 @@ def reconcile_epic_checklists(filepath, child_features, child_stories, child_use
         new_lines.extend(final_usecases)
         
         if idx_stories != -1:
-            new_lines.extend(lines[end_usecases - len(existing_usecases) : idx_stories + 1])
+            new_lines.extend(lines[idx_usecases + 1 + len(existing_usecases) : idx_stories + 1])
         else:
             new_lines.append("")
             new_lines.append(f"{indent}#### Associated User Stories")

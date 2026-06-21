@@ -1,7 +1,7 @@
 ---
 issue_id: 2
 title: "Geographic Position Resolution"
-epic: "epic-01-geo-location"
+epic: "Geographic Location Representation"
 type: "feature"
 interface_type: "ui"
 generation_mode: subagent
