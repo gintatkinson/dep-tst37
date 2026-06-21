@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "specification": "Generic Base Color & Typography Tokens"
+  },
+  "color": {
+    "brand": {
+      "primary": "#1a73e8",
+      "primary-hover": "#1557b0"
+    },
+    "background": {
+      "light": "#ffffff",
+      "dark": "#121212"
+    },
+    "surface": {
+      "light": "#f1f3f4",
+      "dark": "#202124"
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "layout-sidebar-width": "280px",
+    "layout-min-pane-size": "150px"
+  },
+  "typography": {
+    "font-family": "Outfit, Roboto, sans-serif",
+    "scale": "high-density"
+  }
+}
