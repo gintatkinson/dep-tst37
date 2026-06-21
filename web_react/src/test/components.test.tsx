@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Layout } from '../components/layout';
 import { PropertyGrid } from '../components/property-grid';
+import { TopologyMap } from '../components/topology-map';
 import { useGeoLocation } from '../context/GeoLocationContext';
 import { DomainValidationError } from '../domain/validation';
 import layoutStyles from '../components/layout.module.css';
@@ -50,6 +51,14 @@ describe('Layout Component', () => {
   });
 
   it('should enforce flex row layout, full height and width, and containment on the outer wrapper', () => {
+    // Mock GeoLocation context for TopologyMap which is nested inside Layout
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
     render(<Layout />);
     const wrapper = screen.getByTestId('layout-wrapper');
     expect(wrapper).toBeInTheDocument();
@@ -63,6 +72,13 @@ describe('Layout Component', () => {
   });
 
   it('should have a sidebar navigation tree with vertical column layout, width from CSS variable, flex-shrink 0, and overflow-y auto', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
     render(<Layout />);
     const sidebar = screen.getByTestId('sidebar-nav');
     expect(sidebar).toBeInTheDocument();
@@ -76,6 +92,13 @@ describe('Layout Component', () => {
   });
 
   it('should have a layout splitter container that isolates reflows using CSS containment', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
     render(<Layout />);
     const splitter = screen.getByTestId('layout-splitter');
     expect(splitter).toBeInTheDocument();
@@ -85,6 +108,13 @@ describe('Layout Component', () => {
   });
 
   it('should use nested ul/ol inside li for valid HTML nesting in the navigation tree', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
     render(<Layout />);
     const nav = screen.getByRole('navigation');
     expect(nav).toBeInTheDocument();
@@ -103,6 +133,13 @@ describe('Layout Component', () => {
   });
 
   it('should update sidebar width on pointer drag within boundaries and clamp accordingly', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
     render(<Layout />);
     const wrapper = screen.getByTestId('layout-wrapper');
     const splitter = screen.getByTestId('layout-splitter');
@@ -140,6 +177,79 @@ describe('Layout Component', () => {
     // Moves after release should not change style
     fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 400 });
     expect(wrapper).toHaveStyle('--sidebar-width: 600px');
+  });
+
+  it('should update workspace split (topology pane height) on pointer drag within boundaries and clamp accordingly', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(<Layout />);
+    const mainWorkspace = screen.getByTestId('workspace-content');
+    const splitter = screen.getByTestId('workspace-splitter');
+    const wrapper = screen.getByTestId('layout-wrapper');
+
+    mainWorkspace.getBoundingClientRect = vi.fn().mockReturnValue({
+      left: 260,
+      top: 0,
+      right: 1000,
+      bottom: 800,
+      width: 740,
+      height: 800,
+    });
+
+    // Start drag
+    fireEvent.pointerDown(splitter, { pointerId: 2 });
+    expect(splitter.setPointerCapture).toHaveBeenCalledWith(2);
+
+    // Move within bounds (e.g. 350px)
+    fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 350 });
+    expect(wrapper).toHaveStyle('--topology-height: 350px');
+
+    // Move below minimum bounds (e.g. 100px) - should clamp to 200px
+    fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 100 });
+    expect(wrapper).toHaveStyle('--topology-height: 200px');
+
+    // Move above maximum bounds (e.g. 700px) - should clamp to 600px
+    fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 700 });
+    expect(wrapper).toHaveStyle('--topology-height: 600px');
+
+    // End drag
+    fireEvent.pointerUp(splitter, { pointerId: 2 });
+    expect(splitter.releasePointerCapture).toHaveBeenCalledWith(2);
+  });
+
+  it('should preserve input focus and DOM state when split workspace is resized', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(
+      <Layout>
+        <input data-testid="test-input" defaultValue="test-value" />
+      </Layout>
+    );
+    const input = screen.getByTestId('test-input') as HTMLInputElement;
+    input.focus();
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe('test-value');
+
+    // Perform resize drag
+    const splitter = screen.getByTestId('workspace-splitter');
+    fireEvent.pointerDown(splitter, { pointerId: 3 });
+    fireEvent.pointerMove(splitter, { pointerId: 3, clientY: 300 });
+    fireEvent.pointerUp(splitter, { pointerId: 3 });
+
+    // Assert DOM state (focus and value) is preserved
+    expect(screen.getByTestId('test-input')).toBeInTheDocument();
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe('test-value');
   });
 });
 
@@ -231,7 +341,6 @@ describe('PropertyGrid Component', () => {
 
     expect(bodyError).toBeInTheDocument();
     expect(bodyError).toHaveTextContent('Invalid characters in astronomical body name.');
-    // Check style/color - e.g. class containing error
     expect(bodyError.className).toContain('errorMessage');
 
     expect(datumError).toBeInTheDocument();
@@ -276,6 +385,7 @@ describe('PropertyGrid Component', () => {
           heightAccuracy: undefined,
         },
       },
+      location: undefined,
     });
   });
 
@@ -313,6 +423,197 @@ describe('PropertyGrid Component', () => {
           heightAccuracy: undefined,
         },
       },
+      location: undefined,
     });
+  });
+
+  it('should render coordinate type selector and choice-exclusive fields', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+        location: {
+          ellipsoid: {
+            latitude: 37.774929,
+            longitude: -122.419416,
+            height: 10.123456,
+          },
+        },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: mockSaveGeoLocation,
+    });
+
+    render(<PropertyGrid />);
+
+    const select = screen.getByTestId('coordinate-type-select');
+    expect(select).toBeInTheDocument();
+    expect(select).toHaveValue('ellipsoid');
+
+    expect(screen.getByLabelText('Latitude')).toHaveValue('37.774929');
+    expect(screen.getByLabelText('Longitude')).toHaveValue('-122.419416');
+    expect(screen.getByLabelText('Height')).toHaveValue('10.123456');
+
+    expect(screen.queryByLabelText('X Coordinate')).not.toBeInTheDocument();
+  });
+
+  it('should clear out-of-scope fields and save when selector toggles to cartesian', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+        location: {
+          ellipsoid: {
+            latitude: 37.774929,
+            longitude: -122.419416,
+          },
+        },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: mockSaveGeoLocation,
+    });
+
+    render(<PropertyGrid />);
+
+    const select = screen.getByTestId('coordinate-type-select');
+    fireEvent.change(select, { target: { value: 'cartesian' } });
+
+    expect(screen.getByLabelText('X Coordinate')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Latitude')).not.toBeInTheDocument();
+
+    expect(mockSaveGeoLocation).toHaveBeenCalledWith({
+      referenceFrame: {
+        astronomicalBody: 'earth',
+        alternateSystem: undefined,
+        geodeticSystem: undefined,
+      },
+      location: {
+        cartesian: {
+          x: undefined,
+          y: undefined,
+          z: undefined,
+        },
+      },
+    });
+  });
+
+  it('should preserve text inputs precision decimals for coordinates', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: mockSaveGeoLocation,
+    });
+
+    render(<PropertyGrid />);
+
+    const select = screen.getByTestId('coordinate-type-select');
+    fireEvent.change(select, { target: { value: 'ellipsoid' } });
+
+    const latitudeInput = screen.getByLabelText('Latitude');
+    expect(latitudeInput.tagName).toBe('INPUT');
+    expect(latitudeInput).toHaveAttribute('type', 'text');
+
+    fireEvent.change(latitudeInput, { target: { value: '37.7749290000000000' } });
+    expect(latitudeInput).toHaveValue('37.7749290000000000');
+  });
+
+  it('should display coordinate validation errors', () => {
+    const coordErrors = new DomainValidationError([
+      {
+        type: 'constraint-violation',
+        path: '/location',
+        message: 'Exactly one of ellipsoid or cartesian must be defined.',
+      },
+      {
+        type: 'constraint-violation',
+        path: '/location/ellipsoid/latitude',
+        message: 'latitude fraction digits must be exactly 16.',
+      },
+    ]);
+
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+      },
+      loading: false,
+      error: coordErrors,
+      saveGeoLocation: mockSaveGeoLocation,
+    });
+
+    render(<PropertyGrid />);
+
+    expect(screen.getByTestId('error-coordinateType')).toHaveTextContent('Exactly one of ellipsoid or cartesian must be defined.');
+    
+    const select = screen.getByTestId('coordinate-type-select');
+    fireEvent.change(select, { target: { value: 'ellipsoid' } });
+    
+    expect(screen.getByTestId('error-latitude')).toHaveTextContent('latitude fraction digits must be exactly 16.');
+  });
+});
+
+describe('TopologyMap Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders unconfigured state when there are no coordinates', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(<TopologyMap />);
+    expect(screen.getByText('Coordinates Unconfigured')).toBeInTheDocument();
+    expect(screen.queryByTestId('coordinate-marker')).not.toBeInTheDocument();
+  });
+
+  it('renders ellipsoid coordinates correctly when defined', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+        location: {
+          ellipsoid: {
+            latitude: 37.7749290000000000,
+            longitude: -122.4194160000000000,
+          },
+        },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(<TopologyMap />);
+    expect(screen.getByTestId('coordinate-marker')).toBeInTheDocument();
+    expect(screen.getByTestId('info-label')).toHaveTextContent('LAT: 37.774929, LON: -122.419416');
+  });
+
+  it('renders cartesian coordinates correctly when defined', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: { astronomicalBody: 'earth' },
+        location: {
+          cartesian: {
+            x: 1234567.123456,
+            y: -7654321.654321,
+            z: 0.123456,
+          },
+        },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(<TopologyMap />);
+    expect(screen.getByTestId('coordinate-marker')).toBeInTheDocument();
+    expect(screen.getByTestId('info-label')).toHaveTextContent('X: 1234567.123456, Y: -7654321.654321, Z: 0.123456');
   });
 });

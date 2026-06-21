@@ -1,22 +1,37 @@
 import React, { useState, useRef } from 'react';
+import { TopologyMap } from './topology-map';
 import styles from './layout.module.css';
 
 interface LayoutProps {
   children?: React.ReactNode;
 }
 
+/**
+ * Layout Component.
+ * Implements a split workspace layout with resizable sidebar and horizontal workspace split.
+ * Contains sidebar-nav, topology-pane (TopologyMap), details-pane (children/PropertyGrid).
+ *
+ * @realizes UML:Layout
+ * @returns {React.ReactElement} The rendered Sidebar and Split Workspace layout.
+ */
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(260);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
+  const [topologyHeight, setTopologyHeight] = useState(400);
 
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  
+  const isDraggingSidebarRef = useRef(false);
+  const isDraggingWorkspaceRef = useRef(false);
+
+  // Sidebar drag handlers
+  const handleSidebarPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
-    isDraggingRef.current = true;
+    isDraggingSidebarRef.current = true;
   };
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current) return;
+  const handleSidebarPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingSidebarRef.current) return;
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
       const newWidth = e.clientX - rect.left;
@@ -25,10 +40,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDraggingRef.current) {
+  const handleSidebarPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isDraggingSidebarRef.current) {
       e.currentTarget.releasePointerCapture(e.pointerId);
-      isDraggingRef.current = false;
+      isDraggingSidebarRef.current = false;
+    }
+  };
+
+  // Workspace horizontal split drag handlers
+  const handleWorkspacePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    isDraggingWorkspaceRef.current = true;
+  };
+
+  const handleWorkspacePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingWorkspaceRef.current) return;
+    if (workspaceRef.current) {
+      const rect = workspaceRef.current.getBoundingClientRect();
+      const newHeight = e.clientY - rect.top;
+      const clampedHeight = Math.max(200, Math.min(600, newHeight));
+      setTopologyHeight(clampedHeight);
+    }
+  };
+
+  const handleWorkspacePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isDraggingWorkspaceRef.current) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      isDraggingWorkspaceRef.current = false;
     }
   };
 
@@ -37,8 +75,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       data-testid="layout-wrapper"
       ref={wrapperRef}
       className={styles.wrapper}
-      style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+      style={{
+        '--sidebar-width': `${sidebarWidth}px`,
+        '--topology-height': `${topologyHeight}px`,
+      } as React.CSSProperties}
     >
+      {/* Navigation Sidebar */}
       <aside data-testid="sidebar-nav" className={styles.sidebar}>
         <nav role="navigation">
           <ul className={styles.navTree}>
@@ -56,15 +98,43 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ul>
         </nav>
       </aside>
+
+      {/* Sidebar Resizer Splitter */}
       <div
         data-testid="layout-splitter"
         className={styles.splitter}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onPointerDown={handleSidebarPointerDown}
+        onPointerMove={handleSidebarPointerMove}
+        onPointerUp={handleSidebarPointerUp}
       ></div>
-      <main className={styles.content}>
-        {children}
+
+      {/* Main Workspace Split Layout */}
+      <main
+        ref={workspaceRef}
+        className={styles.workspace}
+        data-testid="workspace-content"
+      >
+        <div
+          data-testid="topology-pane"
+          className={styles.topologyPane}
+        >
+          <TopologyMap />
+        </div>
+        
+        <div
+          data-testid="workspace-splitter"
+          className={styles.workspaceSplitter}
+          onPointerDown={handleWorkspacePointerDown}
+          onPointerMove={handleWorkspacePointerMove}
+          onPointerUp={handleWorkspacePointerUp}
+        ></div>
+
+        <div
+          data-testid="details-pane"
+          className={styles.detailsPane}
+        >
+          {children}
+        </div>
       </main>
     </div>
   );

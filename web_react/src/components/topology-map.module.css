@@ -1,0 +1,177 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #0f172a; /* Dark slate background */
+  color: #94a3b8; /* Slate 400 */
+  font-family: var(--sans);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid #1e293b; /* Thin outline border */
+}
+
+.header {
+  padding: 8px 16px;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f1f5f9;
+}
+
+.statusIndicator {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #64748b;
+}
+
+.statusDotActive {
+  background-color: #38bdf8; /* Glowing cyan */
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulse 2s infinite alternate;
+}
+
+.mapArea {
+  flex-grow: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.svgMap {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Grid lines and coordinate markers styles */
+.gridLineMajor {
+  stroke: #334155;
+  stroke-width: 1px;
+}
+
+.gridLineMinor {
+  stroke: #1e293b;
+  stroke-width: 0.5px;
+}
+
+.coordinateMarker {
+  fill: #475569;
+  font-family: var(--mono);
+  font-size: 8px;
+}
+
+/* Crosshair overlay */
+.crosshairRing {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 1.5;
+  animation: glow 1.5s infinite ease-in-out alternate;
+}
+
+.crosshairCenter {
+  fill: #38bdf8;
+}
+
+.crosshairLine {
+  stroke: #38bdf8;
+  stroke-width: 1;
+  stroke-dasharray: 2, 2;
+  opacity: 0.7;
+}
+
+/* Coordinate Info Overlay */
+.infoOverlay {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: rgba(15, 23, 42, 0.95);
+  border: 1px solid #334155;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: #f1f5f9;
+  max-width: calc(100% - 32px);
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.infoLine {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unconfigured {
+  color: #e2e8f0;
+  font-style: italic;
+  font-family: var(--sans);
+  text-align: center;
+  padding: 8px 16px;
+}
+
+/* Scanning scanline animation overlay */
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to bottom, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0));
+  pointer-events: none;
+  z-index: 5;
+  animation: scan 6s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.5));
+    stroke-width: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+    stroke-width: 1.8;
+  }
+}
