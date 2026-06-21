@@ -2,6 +2,7 @@
 title: "Alternate Reference System Simulation"
 type: "user-story"
 spec_source: "RFC 9179 Section 6"
+issue_id: 7
 ---
 
 # User Story: Alternate Reference System Simulation

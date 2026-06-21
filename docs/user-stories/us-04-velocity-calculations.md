@@ -2,6 +2,7 @@
 title: "Velocity Vector to Speed and Heading Calculation"
 type: "user-story"
 spec_source: "https://datatracker.ietf.org/doc/rfc9179/"
+issue_id: 8
 ---
 
 # User Story: Velocity Vector to Speed and Heading Calculation
