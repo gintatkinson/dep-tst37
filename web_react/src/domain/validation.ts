@@ -1,4 +1,4 @@
-import type { ReferenceFrame, GeodeticSystem, GeoLocation } from './types';
+import type { ReferenceFrame, GeodeticSystem, GeoLocation, LocationChoice } from './types';
 
 export interface ValidationError {
   type: 'constraint-violation';
