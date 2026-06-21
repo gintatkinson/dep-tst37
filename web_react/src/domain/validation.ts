@@ -62,10 +62,9 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
   const rawAstronomicalBody = obj.astronomicalBody ?? obj['astronomical-body'];
   const astronomicalBody = rawAstronomicalBody === undefined || rawAstronomicalBody === null || rawAstronomicalBody === ''
     ? 'earth'
-    : String(rawAstronomicalBody);
+    : String(rawAstronomicalBody).toLowerCase();
 
   // Pattern: [ -@\[-\^_-~]* (excludes uppercase letters [A-Z] and control chars)
-  // Mapping to hex range representation: \x20-\x40 (space to @) and \x5b-\x7e ([ to ~)
   const pattern = /^[\x20-\x40\x5b-\x7e]*$/;
 
   if (!pattern.test(astronomicalBody)) {
@@ -80,27 +79,31 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
   const rawGeodeticSystem = obj.geodeticSystem ?? obj['geodetic-system'];
   let geodeticSystemResult: GeodeticSystem | undefined;
 
-  if (rawGeodeticSystem && typeof rawGeodeticSystem === 'object') {
-    const geoObj = rawGeodeticSystem as Record<string, unknown>;
-    let geodeticDatumStr: string;
-    const rawDatum = geoObj.geodeticDatum ?? geoObj['geodetic-datum'];
-    
-    if (rawDatum !== undefined && rawDatum !== null) {
-      const parsedDatum = String(rawDatum).replace(/ /g, '-');
-      geodeticDatumStr = parsedDatum;
+  const isEarth = astronomicalBody === 'earth';
+  const hasGeodeticSystem = rawGeodeticSystem !== undefined && rawGeodeticSystem !== null;
 
-      if (!pattern.test(parsedDatum)) {
-        errors.push({
-          type: 'constraint-violation',
-          path: '/reference-frame/geodetic-system/geodetic-datum',
-          message: 'geodetic-datum contains invalid characters. Uppercase letters and control characters are not allowed.',
-        });
-      }
+  let geodeticDatumStr: string | undefined;
+  let coordAccuracy: unknown;
+  let heightAccuracy: unknown;
+
+  if (hasGeodeticSystem && typeof rawGeodeticSystem === 'object') {
+    const geoObj = rawGeodeticSystem as Record<string, unknown>;
+    const rawDatum = geoObj.geodeticDatum ?? geoObj['geodetic-datum'];
+    coordAccuracy = geoObj.coordAccuracy ?? geoObj['coord-accuracy'];
+    heightAccuracy = geoObj.heightAccuracy ?? geoObj['height-accuracy'];
+
+    if (rawDatum !== undefined && rawDatum !== null) {
+      geodeticDatumStr = String(rawDatum).replace(/ /g, '-').toLowerCase();
+    }
+  }
+
+  // Handle defaulting of geodeticDatum and empty string checks
+  if (geodeticDatumStr === undefined || geodeticDatumStr === null) {
+    if (isEarth) {
+      geodeticDatumStr = 'wgs-84';
     } else {
-      if (astronomicalBody === 'earth') {
-        geodeticDatumStr = 'wgs-84';
-      } else {
-        geodeticDatumStr = '';
+      geodeticDatumStr = '';
+      if (hasGeodeticSystem) {
         errors.push({
           type: 'constraint-violation',
           path: '/reference-frame/geodetic-system/geodetic-datum',
@@ -108,9 +111,29 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
         });
       }
     }
+  } else if (geodeticDatumStr === '') {
+    if (!isEarth) {
+      errors.push({
+        type: 'constraint-violation',
+        path: '/reference-frame/geodetic-system/geodetic-datum',
+        message: 'geodetic-datum cannot be empty for non-earth bodies.',
+      });
+    } else {
+      geodeticDatumStr = 'wgs-84';
+    }
+  }
 
-    const coordAccuracy = geoObj.coordAccuracy ?? geoObj['coord-accuracy'];
-    const heightAccuracy = geoObj.heightAccuracy ?? geoObj['height-accuracy'];
+  if (geodeticDatumStr !== '' && !pattern.test(geodeticDatumStr)) {
+    errors.push({
+      type: 'constraint-violation',
+      path: '/reference-frame/geodetic-system/geodetic-datum',
+      message: 'geodetic-datum contains invalid characters. Uppercase letters and control characters are not allowed.',
+    });
+  }
+
+  // Construct geodeticSystemResult if we have geodetic system fields or if it's Earth
+  if (geodeticDatumStr !== '' || coordAccuracy !== undefined || heightAccuracy !== undefined || isEarth) {
+    const datum = geodeticDatumStr || (isEarth ? 'wgs-84' : '');
 
     if (coordAccuracy !== undefined && coordAccuracy !== null) {
       const numVal = Number(coordAccuracy);
@@ -120,12 +143,21 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
           path: '/reference-frame/geodetic-system/coord-accuracy',
           message: 'coord-accuracy must be a number.',
         });
-      } else if (countDecimals(coordAccuracy) > 6) {
-        errors.push({
-          type: 'constraint-violation',
-          path: '/reference-frame/geodetic-system/coord-accuracy',
-          message: 'coord-accuracy fraction digits must not exceed 6.',
-        });
+      } else {
+        if (countDecimals(coordAccuracy) !== 6) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/reference-frame/geodetic-system/coord-accuracy',
+            message: 'coord-accuracy fraction digits must be exactly 6.',
+          });
+        }
+        if (numVal < 0) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/reference-frame/geodetic-system/coord-accuracy',
+            message: 'coord-accuracy must be non-negative.',
+          });
+        }
       }
     }
 
@@ -137,19 +169,28 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
           path: '/reference-frame/geodetic-system/height-accuracy',
           message: 'height-accuracy must be a number.',
         });
-      } else if (countDecimals(heightAccuracy) > 6) {
-        errors.push({
-          type: 'constraint-violation',
-          path: '/reference-frame/geodetic-system/height-accuracy',
-          message: 'height-accuracy fraction digits must not exceed 6.',
-        });
+      } else {
+        if (countDecimals(heightAccuracy) !== 6) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/reference-frame/geodetic-system/height-accuracy',
+            message: 'height-accuracy fraction digits must be exactly 6.',
+          });
+        }
+        if (numVal < 0) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/reference-frame/geodetic-system/height-accuracy',
+            message: 'height-accuracy must be non-negative.',
+          });
+        }
       }
     }
 
     geodeticSystemResult = {
-      geodeticDatum: geodeticDatumStr,
-      ...(coordAccuracy !== undefined && coordAccuracy !== null ? { coordAccuracy: Number(coordAccuracy) } : {}),
-      ...(heightAccuracy !== undefined && heightAccuracy !== null ? { heightAccuracy: Number(heightAccuracy) } : {}),
+      geodeticDatum: datum,
+      ...(coordAccuracy !== undefined && coordAccuracy !== null && !isNaN(Number(coordAccuracy)) ? { coordAccuracy: Number(coordAccuracy) } : {}),
+      ...(heightAccuracy !== undefined && heightAccuracy !== null && !isNaN(Number(heightAccuracy)) ? { heightAccuracy: Number(heightAccuracy) } : {}),
     };
   }
 

@@ -24,8 +24,8 @@ describe('Persistence Layer & Context', () => {
         astronomicalBody: 'moon',
         geodeticSystem: {
           geodeticDatum: 'luna-1969',
-          coordAccuracy: 0.123,
-          heightAccuracy: 1,
+          coordAccuracy: 0.123456,
+          heightAccuracy: 1.123456,
         },
       };
       await repo.save(validFrame);
@@ -35,12 +35,33 @@ describe('Persistence Layer & Context', () => {
 
     it('should reject invalid frames on save and throw DomainValidationError', async () => {
       const invalidFrame = {
-        astronomicalBody: 'EARTH', // caps not allowed
+        astronomicalBody: 'earth\u0001', // illegal control character
         geodeticSystem: {
           geodeticDatum: 'wgs-84',
         },
       };
       await expect(repo.save(invalidFrame as unknown as ReferenceFrame)).rejects.toThrow(DomainValidationError);
+    });
+
+    it('should prevent reference-sharing mutations via deep copy', async () => {
+      const frame: ReferenceFrame = {
+        astronomicalBody: 'moon',
+        geodeticSystem: {
+          geodeticDatum: 'luna-1969',
+          coordAccuracy: 0.123456,
+          heightAccuracy: 1.123456,
+        },
+      };
+      await repo.save(frame);
+      const loaded1 = await repo.load();
+      
+      // Mutate loaded1 geodeticSystem
+      if (loaded1.geodeticSystem) {
+        loaded1.geodeticSystem.geodeticDatum = 'mutated';
+      }
+
+      const loaded2 = await repo.load();
+      expect(loaded2.geodeticSystem?.geodeticDatum).toBe('luna-1969');
     });
   });
 
@@ -71,7 +92,7 @@ describe('Persistence Layer & Context', () => {
             data-testid="save-invalid-btn"
             onClick={() =>
               saveFrame({
-                astronomicalBody: 'Mars-CAPS', // Invalid
+                astronomicalBody: 'mars\u0001', // Invalid control char
                 geodeticSystem: { geodeticDatum: 'mola-2000' },
               })
             }

@@ -13,20 +13,25 @@ vi.mock('../context/GeoLocationContext', () => ({
 
 describe('Layout Component', () => {
   beforeEach(() => {
+    // Mock pointer capture methods which aren't fully implemented in JSDOM
+    Element.prototype.setPointerCapture = vi.fn();
+    Element.prototype.releasePointerCapture = vi.fn();
+
     // Inject styles for JSDOM style testing
     const style = document.createElement('style');
     style.id = 'layout-test-styles';
     style.innerHTML = `
       .${layoutStyles.wrapper} {
         display: flex;
-        flex-direction: row;
+        flex-direction: var(--layout-direction, row);
         height: 100%;
         width: 100%;
+        contain: layout paint;
       }
       .${layoutStyles.sidebar} {
         display: flex;
         flex-direction: column;
-        min-width: 240px;
+        width: var(--sidebar-width, 260px);
         flex-shrink: 0;
         overflow-y: auto;
       }
@@ -44,19 +49,20 @@ describe('Layout Component', () => {
     };
   });
 
-  it('should enforce flex row layout, full height and width on the outer wrapper', () => {
+  it('should enforce flex row layout, full height and width, and containment on the outer wrapper', () => {
     render(<Layout />);
     const wrapper = screen.getByTestId('layout-wrapper');
     expect(wrapper).toBeInTheDocument();
     
     const computed = window.getComputedStyle(wrapper);
     expect(computed.display).toBe('flex');
-    expect(computed.flexDirection).toBe('row');
+    expect(computed.flexDirection).toBe('var(--layout-direction, row)');
     expect(computed.height).toBe('100%');
     expect(computed.width).toBe('100%');
+    expect(computed.contain).toBe('layout paint');
   });
 
-  it('should have a sidebar navigation tree with vertical column layout, min-width 240px, flex-shrink 0, and overflow-y auto', () => {
+  it('should have a sidebar navigation tree with vertical column layout, width from CSS variable, flex-shrink 0, and overflow-y auto', () => {
     render(<Layout />);
     const sidebar = screen.getByTestId('sidebar-nav');
     expect(sidebar).toBeInTheDocument();
@@ -64,7 +70,7 @@ describe('Layout Component', () => {
     const computed = window.getComputedStyle(sidebar);
     expect(computed.display).toBe('flex');
     expect(computed.flexDirection).toBe('column');
-    expect(computed.minWidth).toBe('240px');
+    expect(computed.width).toBe('var(--sidebar-width, 260px)');
     expect(computed.flexShrink).toBe('0');
     expect(computed.overflowY).toBe('auto');
   });
@@ -94,6 +100,46 @@ describe('Layout Component', () => {
         expect(parent.tagName).toBe('LI');
       }
     });
+  });
+
+  it('should update sidebar width on pointer drag within boundaries and clamp accordingly', () => {
+    render(<Layout />);
+    const wrapper = screen.getByTestId('layout-wrapper');
+    const splitter = screen.getByTestId('layout-splitter');
+
+    // Mock bounding rect for wrapper
+    wrapper.getBoundingClientRect = vi.fn().mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 1000,
+      bottom: 800,
+      width: 1000,
+      height: 800,
+    });
+
+    // Start drag
+    fireEvent.pointerDown(splitter, { pointerId: 1 });
+    expect(splitter.setPointerCapture).toHaveBeenCalledWith(1);
+
+    // Move within bounds (e.g. 300px)
+    fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 300 });
+    expect(wrapper).toHaveStyle('--sidebar-width: 300px');
+
+    // Move below minimum bounds (e.g. 100px) - should clamp to 180px
+    fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 100 });
+    expect(wrapper).toHaveStyle('--sidebar-width: 180px');
+
+    // Move above maximum bounds (e.g. 700px) - should clamp to 600px
+    fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 700 });
+    expect(wrapper).toHaveStyle('--sidebar-width: 600px');
+
+    // End drag
+    fireEvent.pointerUp(splitter, { pointerId: 1 });
+    expect(splitter.releasePointerCapture).toHaveBeenCalledWith(1);
+
+    // Moves after release should not change style
+    fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 400 });
+    expect(wrapper).toHaveStyle('--sidebar-width: 600px');
   });
 });
 

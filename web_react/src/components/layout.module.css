@@ -1,15 +1,16 @@
 .wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: var(--layout-direction, row);
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+  contain: layout paint;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  min-width: 240px;
+  width: var(--sidebar-width, 260px);
   flex-shrink: 0;
   overflow-y: auto;
   box-sizing: border-box;
@@ -18,8 +19,12 @@
 }
 
 .splitter {
+  width: var(--splitter-width, 8px);
+  height: var(--splitter-height, auto);
+  cursor: var(--splitter-cursor, col-resize);
   contain: layout paint;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .content {

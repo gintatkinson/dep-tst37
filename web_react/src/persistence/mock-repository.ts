@@ -6,14 +6,14 @@ export class MockGeoLocationRepository implements GeoLocationRepository {
   private frame: ReferenceFrame | null = null;
 
   async save(frame: ReferenceFrame): Promise<void> {
-    validateReferenceFrame(frame);
-    this.frame = { ...frame };
+    const validated = validateReferenceFrame(frame);
+    this.frame = JSON.parse(JSON.stringify(validated));
   }
 
   async load(): Promise<ReferenceFrame> {
     if (this.frame === null) {
-      return getDefaultReferenceFrame();
+      return JSON.parse(JSON.stringify(getDefaultReferenceFrame()));
     }
-    return { ...this.frame };
+    return JSON.parse(JSON.stringify(this.frame));
   }
 }
