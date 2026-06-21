@@ -1,4 +1,4 @@
-import { ReferenceFrame, GeodeticSystem } from './types';
+import type { ReferenceFrame, GeodeticSystem } from './types';
 
 export interface ValidationError {
   type: 'constraint-violation';
@@ -7,9 +7,11 @@ export interface ValidationError {
 }
 
 export class DomainValidationError extends Error {
-  constructor(public errors: ValidationError[]) {
+  public errors: ValidationError[];
+  constructor(errors: ValidationError[]) {
     super(`Validation failed: ${errors.map(e => `${e.path}: ${e.message}`).join(', ')}`);
     this.name = 'DomainValidationError';
+    this.errors = errors;
   }
 }
 
@@ -80,14 +82,14 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
 
   if (rawGeodeticSystem && typeof rawGeodeticSystem === 'object') {
     const geoObj = rawGeodeticSystem as Record<string, unknown>;
-    let geodeticDatum = geoObj.geodeticDatum ?? geoObj['geodetic-datum'];
+    let geodeticDatumStr: string;
+    const rawDatum = geoObj.geodeticDatum ?? geoObj['geodetic-datum'];
     
-    if (geodeticDatum !== undefined && geodeticDatum !== null) {
-      geodeticDatum = String(geodeticDatum);
-      // Spaces are replaced with dashes (e.g. "wgs-84")
-      geodeticDatum = geodeticDatum.replace(/ /g, '-');
+    if (rawDatum !== undefined && rawDatum !== null) {
+      const parsedDatum = String(rawDatum).replace(/ /g, '-');
+      geodeticDatumStr = parsedDatum;
 
-      if (!pattern.test(geodeticDatum)) {
+      if (!pattern.test(parsedDatum)) {
         errors.push({
           type: 'constraint-violation',
           path: '/reference-frame/geodetic-system/geodetic-datum',
@@ -96,8 +98,9 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
       }
     } else {
       if (astronomicalBody === 'earth') {
-        geodeticDatum = 'wgs-84';
+        geodeticDatumStr = 'wgs-84';
       } else {
+        geodeticDatumStr = '';
         errors.push({
           type: 'constraint-violation',
           path: '/reference-frame/geodetic-system/geodetic-datum',
@@ -144,7 +147,7 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
     }
 
     geodeticSystemResult = {
-      geodeticDatum,
+      geodeticDatum: geodeticDatumStr,
       ...(coordAccuracy !== undefined && coordAccuracy !== null ? { coordAccuracy: Number(coordAccuracy) } : {}),
       ...(heightAccuracy !== undefined && heightAccuracy !== null ? { heightAccuracy: Number(heightAccuracy) } : {}),
     };

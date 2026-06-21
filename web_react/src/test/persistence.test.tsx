@@ -1,9 +1,8 @@
-import React from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { MockGeoLocationRepository } from '../persistence/mock-repository';
 import { GeoLocationProvider, useGeoLocation } from '../context/GeoLocationContext';
-import { ReferenceFrame } from '../domain/types';
+import type { ReferenceFrame } from '../domain/types';
 import { DomainValidationError } from '../domain/validation';
 
 describe('Persistence Layer & Context', () => {

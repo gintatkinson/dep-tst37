@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useGeoLocation } from '../context/GeoLocationContext';
-import { ReferenceFrame, GeodeticSystem } from '../domain/types';
-import { DomainValidationError, ValidationError } from '../domain/validation';
+import type { ReferenceFrame, GeodeticSystem } from '../domain/types';
+import { DomainValidationError } from '../domain/validation';
+import type { ValidationError } from '../domain/validation';
 import styles from './property-grid.module.css';
 
 export const PropertyGrid: React.FC = () => {

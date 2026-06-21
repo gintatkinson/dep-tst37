@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ReferenceFrame } from '../domain/types';
-import { GeoLocationRepository } from '../persistence/repository';
+import type { ReferenceFrame } from '../domain/types';
+import type { GeoLocationRepository } from '../persistence/repository';
 
 export interface GeoLocationContextType {
   referenceFrame: ReferenceFrame | null;

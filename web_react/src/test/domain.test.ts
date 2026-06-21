@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateReferenceFrame, getDefaultReferenceFrame, DomainValidationError } from '../domain/validation';
-import { ReferenceFrame } from '../domain/types';
+import type { ReferenceFrame } from '../domain/types';
 
 describe('Domain Models and Validation Rules', () => {
   describe('getDefaultReferenceFrame', () => {

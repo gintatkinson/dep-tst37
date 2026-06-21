@@ -1,5 +1,5 @@
-import { GeoLocationRepository } from './repository';
-import { ReferenceFrame } from '../domain/types';
+import type { GeoLocationRepository } from './repository';
+import type { ReferenceFrame } from '../domain/types';
 import { validateReferenceFrame, getDefaultReferenceFrame } from '../domain/validation';
 
 export class MockGeoLocationRepository implements GeoLocationRepository {

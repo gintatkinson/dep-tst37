@@ -1,0 +1,107 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --text: #334155; /* Slate 700 */
+  --text-h: #0f172a; /* Slate 900 */
+  --bg: #f8fafc; /* Slate 50 */
+  --border: #cbd5e1; /* Slate 300 */
+  --code-bg: #e2e8f0; /* Slate 200 */
+  --accent: #0284c7; /* Sky 600 */
+  --accent-bg: rgba(2, 132, 199, 0.1);
+  --accent-border: rgba(2, 132, 199, 0.3);
+  --shadow: rgba(0, 0, 0, 0.05) 0 1px 3px 0, rgba(0, 0, 0, 0.05) 0 1px 2px -1px;
+
+  --sans: 'Inter', 'Roboto', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #94a3b8; /* Slate 400 */
+    --text-h: #f1f5f9; /* Slate 100 */
+    --bg: #0b0f19; /* Deep slate space */
+    --border: #1e293b; /* Slate 800 */
+    --code-bg: #0f172a; /* Slate 900 */
+    --accent: #38bdf8; /* Sky 400 */
+    --accent-bg: rgba(56, 189, 248, 0.1);
+    --accent-border: rgba(56, 189, 248, 0.3);
+    --shadow: rgba(0, 0, 0, 0.3) 0 1px 3px 0, rgba(0, 0, 0, 0.3) 0 1px 2px -1px;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  height: 100svh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--bg);
+}
+
+#root {
+  height: 100vh;
+  height: 100svh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+h1 {
+  font-size: 18px; /* Max 18px for page titles */
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: 13px; /* Section headings 13px-14px */
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+  font-size: 12px;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 4px;
+  background-color: var(--code-bg);
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-border);
+  text-decoration: none;
+}
+
