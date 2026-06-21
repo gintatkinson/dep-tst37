@@ -18,16 +18,15 @@ The `ietf-geo-location` module defines a grouping for a geographic location cont
 ### Associated Use Cases & User Stories
 
 #### Associated Use Cases
-- [ ] #[IssueID] - Configure Frame of Reference and Position (https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-01-configure-position.md) (Standard spatial configuration use case)
-- [ ] #[IssueID] - Monitor Dynamic Geolocation and Expiration (https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-02-monitor-dynamics.md) (Active tracking and validity use case)
+- [ ] #10 - Configure Frame of Reference and Position (https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-01-configure-position.md) (Standard spatial configuration use case)
+- [ ] #11 - Monitor Dynamic Geolocation and Expiration (https://github.com/gintatkinson/dep-tst37/blob/main/docs/use-cases/uc-02-monitor-dynamics.md) (Active tracking and validity use case)
 
 #### Associated User Stories
-- [ ] #[IssueID] - Ellipsoidal Positioning on Earth (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) (Standard positioning scenario)
-- [ ] #[IssueID] - Cartesian Coordinate Positioning (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) (Alternative spatial representation)
-- [ ] #[IssueID] - Alternate Reference System Simulation (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) (Virtual realities / alternate bodies)
-- [ ] #[IssueID] - Velocity Vector to Speed and Heading Calculation (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Algorithmic speed/heading calculations)
-- [ ] #[IssueID] - Geolocation Temporal Expiration (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Validity decay handling)
-
+- [ ] #5 - Ellipsoidal Positioning on Earth (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-01-ellipsoidal-positioning.md) (Standard positioning scenario)
+- [ ] #6 - Cartesian Coordinate Positioning (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-02-cartesian-positioning.md) (Alternative spatial representation)
+- [ ] #7 - Alternate Reference System Simulation (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-03-alternate-reference-system.md) (Virtual realities / alternate bodies)
+- [ ] #8 - Velocity Vector to Speed and Heading Calculation (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-04-velocity-calculations.md) (Algorithmic speed/heading calculations)
+- [ ] #9 - Geolocation Temporal Expiration (https://github.com/gintatkinson/dep-tst37/blob/main/docs/user-stories/us-05-temporal-expiration.md) (Validity decay handling)
 ## 3. Architecture and System Interaction Diagrams
 
 ### Subsystem Component Definition
