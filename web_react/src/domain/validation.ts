@@ -1,4 +1,4 @@
-import type { ReferenceFrame, GeodeticSystem } from './types';
+import type { ReferenceFrame, GeodeticSystem, GeoLocation } from './types';
 
 export interface ValidationError {
   type: 'constraint-violation';
@@ -206,3 +206,296 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
     ...(geodeticSystemResult ? { geodeticSystem: geodeticSystemResult } : {}),
   };
 }
+
+/**
+ * Validates a GeoLocation object and returns a normalized GeoLocation.
+ * Throws a DomainValidationError if validation fails.
+ */
+export function validateGeoLocation(input: unknown): GeoLocation {
+  const errors: ValidationError[] = [];
+
+  const obj = typeof input === 'object' && input !== null ? (input as Record<string, unknown>) : {};
+
+  // 1. Validate Reference Frame if present
+  let referenceFrame: ReferenceFrame | undefined;
+  const rawReferenceFrame = obj.referenceFrame ?? obj['reference-frame'];
+  if (rawReferenceFrame !== undefined && rawReferenceFrame !== null) {
+    try {
+      referenceFrame = validateReferenceFrame(rawReferenceFrame);
+    } catch (err) {
+      if (err instanceof DomainValidationError) {
+        errors.push(...err.errors);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  // 2. Validate Location Choice Exclusivity
+  const rawLocation = obj.location;
+  const locObj = typeof rawLocation === 'object' && rawLocation !== null ? (rawLocation as Record<string, unknown>) : null;
+
+  const ellipsoid = locObj?.ellipsoid;
+  const cartesian = locObj?.cartesian;
+
+  const hasEllipsoid = ellipsoid !== undefined && ellipsoid !== null;
+  const hasCartesian = cartesian !== undefined && cartesian !== null;
+
+  let locationResult: LocationChoice | undefined;
+
+  if ((hasEllipsoid && hasCartesian) || (!hasEllipsoid && !hasCartesian)) {
+    errors.push({
+      type: 'constraint-violation',
+      path: '/location',
+      message: 'Exactly one of ellipsoid or cartesian must be defined.',
+    });
+  } else {
+    // Exactly one is defined
+    if (hasEllipsoid) {
+      const ellObj = typeof ellipsoid === 'object' && ellipsoid !== null ? (ellipsoid as Record<string, unknown>) : {};
+
+      const latVal = ellObj.latitude;
+      const lonVal = ellObj.longitude;
+      const heightVal = ellObj.height;
+
+      let latitude: number | undefined;
+      let longitude: number | undefined;
+      let height: number | undefined;
+
+      // Validate latitude
+      if (latVal === undefined || latVal === null) {
+        errors.push({
+          type: 'constraint-violation',
+          path: '/location/ellipsoid/latitude',
+          message: 'latitude is mandatory for ellipsoid location.',
+        });
+      } else {
+        const numLat = Number(latVal);
+        if (isNaN(numLat)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/ellipsoid/latitude',
+            message: 'latitude must be a number.',
+          });
+        } else {
+          // Check range [-90..90]
+          if (numLat < -90 || numLat > 90) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/ellipsoid/latitude',
+              message: 'latitude must be in range [-90..90].',
+            });
+          }
+          // Check precision (16 decimals)
+          const decimals = countDecimals(latVal);
+          const isValidPrecision = typeof latVal === 'number' ? (decimals <= 16) : (decimals === 16);
+          if (!isValidPrecision) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/ellipsoid/latitude',
+              message: 'latitude fraction digits must be exactly 16.',
+            });
+          }
+          latitude = numLat;
+        }
+      }
+
+      // Validate longitude
+      if (lonVal === undefined || lonVal === null) {
+        errors.push({
+          type: 'constraint-violation',
+          path: '/location/ellipsoid/longitude',
+          message: 'longitude is mandatory for ellipsoid location.',
+        });
+      } else {
+        const numLon = Number(lonVal);
+        if (isNaN(numLon)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/ellipsoid/longitude',
+            message: 'longitude must be a number.',
+          });
+        } else {
+          // Check range [-180..180]
+          if (numLon < -180 || numLon > 180) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/ellipsoid/longitude',
+              message: 'longitude must be in range [-180..180].',
+            });
+          }
+          // Check precision (16 decimals)
+          const decimals = countDecimals(lonVal);
+          const isValidPrecision = typeof lonVal === 'number' ? (decimals <= 16) : (decimals === 16);
+          if (!isValidPrecision) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/ellipsoid/longitude',
+              message: 'longitude fraction digits must be exactly 16.',
+            });
+          }
+          longitude = numLon;
+        }
+      }
+
+      // Validate height if defined
+      if (heightVal !== undefined && heightVal !== null) {
+        const numHeight = Number(heightVal);
+        if (isNaN(numHeight)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/ellipsoid/height',
+            message: 'height must be a number.',
+          });
+        } else {
+          // Check precision (6 decimals)
+          const decimals = countDecimals(heightVal);
+          if (decimals !== 6) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/ellipsoid/height',
+              message: 'height fraction digits must be exactly 6.',
+            });
+          }
+          height = numHeight;
+        }
+      }
+
+      if (latitude !== undefined && longitude !== undefined) {
+        locationResult = {
+          ellipsoid: {
+            latitude,
+            longitude,
+            ...(height !== undefined ? { height } : {}),
+          },
+        };
+      }
+    } else {
+      // Cartesian location choice
+      const cartObj = typeof cartesian === 'object' && cartesian !== null ? (cartesian as Record<string, unknown>) : {};
+
+      const xVal = cartObj.x;
+      const yVal = cartObj.y;
+      const zVal = cartObj.z;
+
+      let x: number | undefined;
+      let y: number | undefined;
+      let z: number | undefined;
+
+      // Validate x
+      if (xVal === undefined || xVal === null) {
+        errors.push({
+          type: 'constraint-violation',
+          path: '/location/cartesian/x',
+          message: 'x is mandatory for cartesian location.',
+        });
+      } else {
+        const numX = Number(xVal);
+        if (isNaN(numX)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/cartesian/x',
+            message: 'x must be a number.',
+          });
+        } else {
+          const decimals = countDecimals(xVal);
+          if (decimals !== 6) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/cartesian/x',
+              message: 'x fraction digits must be exactly 6.',
+            });
+          }
+          x = numX;
+        }
+      }
+
+      // Validate y
+      if (yVal === undefined || yVal === null) {
+        errors.push({
+          type: 'constraint-violation',
+          path: '/location/cartesian/y',
+          message: 'y is mandatory for cartesian location.',
+        });
+      } else {
+        const numY = Number(yVal);
+        if (isNaN(numY)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/cartesian/y',
+            message: 'y must be a number.',
+          });
+        } else {
+          const decimals = countDecimals(yVal);
+          if (decimals !== 6) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/cartesian/y',
+              message: 'y fraction digits must be exactly 6.',
+            });
+          }
+          y = numY;
+        }
+      }
+
+      // Validate z
+      if (zVal === undefined || zVal === null) {
+        errors.push({
+          type: 'constraint-violation',
+          path: '/location/cartesian/z',
+          message: 'z is mandatory for cartesian location.',
+        });
+      } else {
+        const numZ = Number(zVal);
+        if (isNaN(numZ)) {
+          errors.push({
+            type: 'constraint-violation',
+            path: '/location/cartesian/z',
+            message: 'z must be a number.',
+          });
+        } else {
+          const decimals = countDecimals(zVal);
+          if (decimals !== 6) {
+            errors.push({
+              type: 'constraint-violation',
+              path: '/location/cartesian/z',
+              message: 'z fraction digits must be exactly 6.',
+            });
+          }
+          z = numZ;
+        }
+      }
+
+      if (x !== undefined && y !== undefined && z !== undefined) {
+        locationResult = {
+          cartesian: { x, y, z },
+        };
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new DomainValidationError(errors);
+  }
+
+  return {
+    ...(referenceFrame ? { referenceFrame } : {}),
+    location: locationResult,
+  };
+}
+
+/**
+ * Gets a default GeoLocation object.
+ */
+export function getDefaultGeoLocation(): GeoLocation {
+  return {
+    referenceFrame: getDefaultReferenceFrame(),
+    location: {
+      ellipsoid: {
+        latitude: 0,
+        longitude: 0,
+      },
+    },
+  };
+}
+
