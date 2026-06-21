@@ -1,19 +1,19 @@
 import type { GeoLocationRepository } from './repository';
-import type { ReferenceFrame } from '../domain/types';
-import { validateReferenceFrame, getDefaultReferenceFrame } from '../domain/validation';
+import type { GeoLocation } from '../domain/types';
+import { validateGeoLocation, getDefaultGeoLocation } from '../domain/validation';
 
 export class MockGeoLocationRepository implements GeoLocationRepository {
-  private frame: ReferenceFrame | null = null;
+  private location: GeoLocation | null = null;
 
-  async save(frame: ReferenceFrame): Promise<void> {
-    const validated = validateReferenceFrame(frame);
-    this.frame = JSON.parse(JSON.stringify(validated));
+  async save(location: GeoLocation): Promise<void> {
+    const validated = validateGeoLocation(location);
+    this.location = JSON.parse(JSON.stringify(validated));
   }
 
-  async load(): Promise<ReferenceFrame> {
-    if (this.frame === null) {
-      return JSON.parse(JSON.stringify(getDefaultReferenceFrame()));
+  async load(): Promise<GeoLocation> {
+    if (this.location === null) {
+      return JSON.parse(JSON.stringify(getDefaultGeoLocation()));
     }
-    return JSON.parse(JSON.stringify(this.frame));
+    return JSON.parse(JSON.stringify(this.location));
   }
 }

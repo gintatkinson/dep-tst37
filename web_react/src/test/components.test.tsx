@@ -144,7 +144,7 @@ describe('Layout Component', () => {
 });
 
 describe('PropertyGrid Component', () => {
-  const mockSaveFrame = vi.fn().mockResolvedValue(undefined);
+  const mockSaveGeoLocation = vi.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -152,18 +152,20 @@ describe('PropertyGrid Component', () => {
 
   it('should render input fields for all parameters', () => {
     vi.mocked(useGeoLocation).mockReturnValue({
-      referenceFrame: {
-        astronomicalBody: 'earth',
-        alternateSystem: 'alt-1',
-        geodeticSystem: {
-          geodeticDatum: 'wgs-84',
-          coordAccuracy: 0.5,
-          heightAccuracy: 1.2,
+      geoLocation: {
+        referenceFrame: {
+          astronomicalBody: 'earth',
+          alternateSystem: 'alt-1',
+          geodeticSystem: {
+            geodeticDatum: 'wgs-84',
+            coordAccuracy: 0.5,
+            heightAccuracy: 1.2,
+          },
         },
       },
       loading: false,
       error: null,
-      saveFrame: mockSaveFrame,
+      saveGeoLocation: mockSaveGeoLocation,
     });
 
     render(<PropertyGrid />);
@@ -206,16 +208,18 @@ describe('PropertyGrid Component', () => {
     ]);
 
     vi.mocked(useGeoLocation).mockReturnValue({
-      referenceFrame: {
-        astronomicalBody: 'EARTH',
-        alternateSystem: '',
-        geodeticSystem: {
-          geodeticDatum: 'wgs 84',
+      geoLocation: {
+        referenceFrame: {
+          astronomicalBody: 'EARTH',
+          alternateSystem: '',
+          geodeticSystem: {
+            geodeticDatum: 'wgs 84',
+          },
         },
       },
       loading: false,
       error: validationError,
-      saveFrame: mockSaveFrame,
+      saveGeoLocation: mockSaveGeoLocation,
     });
 
     render(<PropertyGrid />);
@@ -242,16 +246,18 @@ describe('PropertyGrid Component', () => {
 
   it('should trigger repository save on input blur', async () => {
     vi.mocked(useGeoLocation).mockReturnValue({
-      referenceFrame: {
-        astronomicalBody: 'earth',
-        alternateSystem: '',
-        geodeticSystem: {
-          geodeticDatum: 'wgs-84',
+      geoLocation: {
+        referenceFrame: {
+          astronomicalBody: 'earth',
+          alternateSystem: '',
+          geodeticSystem: {
+            geodeticDatum: 'wgs-84',
+          },
         },
       },
       loading: false,
       error: null,
-      saveFrame: mockSaveFrame,
+      saveGeoLocation: mockSaveGeoLocation,
     });
 
     render(<PropertyGrid />);
@@ -260,29 +266,33 @@ describe('PropertyGrid Component', () => {
     fireEvent.change(input, { target: { value: 'mars' } });
     fireEvent.blur(input);
 
-    expect(mockSaveFrame).toHaveBeenCalledWith({
-      astronomicalBody: 'mars',
-      alternateSystem: undefined,
-      geodeticSystem: {
-        geodeticDatum: 'wgs-84',
-        coordAccuracy: undefined,
-        heightAccuracy: undefined,
+    expect(mockSaveGeoLocation).toHaveBeenCalledWith({
+      referenceFrame: {
+        astronomicalBody: 'mars',
+        alternateSystem: undefined,
+        geodeticSystem: {
+          geodeticDatum: 'wgs-84',
+          coordAccuracy: undefined,
+          heightAccuracy: undefined,
+        },
       },
     });
   });
 
   it('should trigger repository save on form submission', async () => {
     vi.mocked(useGeoLocation).mockReturnValue({
-      referenceFrame: {
-        astronomicalBody: 'earth',
-        alternateSystem: '',
-        geodeticSystem: {
-          geodeticDatum: 'wgs-84',
+      geoLocation: {
+        referenceFrame: {
+          astronomicalBody: 'earth',
+          alternateSystem: '',
+          geodeticSystem: {
+            geodeticDatum: 'wgs-84',
+          },
         },
       },
       loading: false,
       error: null,
-      saveFrame: mockSaveFrame,
+      saveGeoLocation: mockSaveGeoLocation,
     });
 
     render(<PropertyGrid />);
@@ -293,13 +303,15 @@ describe('PropertyGrid Component', () => {
     const form = screen.getByTestId('property-grid-form');
     fireEvent.submit(form);
 
-    expect(mockSaveFrame).toHaveBeenCalledWith({
-      astronomicalBody: 'earth',
-      alternateSystem: 'alt-new',
-      geodeticSystem: {
-        geodeticDatum: 'wgs-84',
-        coordAccuracy: undefined,
-        heightAccuracy: undefined,
+    expect(mockSaveGeoLocation).toHaveBeenCalledWith({
+      referenceFrame: {
+        astronomicalBody: 'earth',
+        alternateSystem: 'alt-new',
+        geodeticSystem: {
+          geodeticDatum: 'wgs-84',
+          coordAccuracy: undefined,
+          heightAccuracy: undefined,
+        },
       },
     });
   });

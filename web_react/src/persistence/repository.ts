@@ -1,6 +1,6 @@
-import type { ReferenceFrame } from '../domain/types';
+import type { GeoLocation } from '../domain/types';
 
 export interface GeoLocationRepository {
-  save(frame: ReferenceFrame): Promise<void>;
-  load(): Promise<ReferenceFrame>;
+  save(location: GeoLocation): Promise<void>;
+  load(): Promise<GeoLocation>;
 }

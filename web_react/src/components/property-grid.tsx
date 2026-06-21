@@ -6,7 +6,15 @@ import type { ValidationError } from '../domain/validation';
 import styles from './property-grid.module.css';
 
 export const PropertyGrid: React.FC = () => {
-  const { referenceFrame, loading, error, saveFrame } = useGeoLocation();
+  const { geoLocation, loading, error, saveGeoLocation } = useGeoLocation();
+  const referenceFrame = geoLocation?.referenceFrame || null;
+
+  const saveFrame = (frame: ReferenceFrame) => {
+    return saveGeoLocation({
+      ...geoLocation,
+      referenceFrame: frame,
+    });
+  };
 
   const [prevReferenceFrame, setPrevReferenceFrame] = useState<ReferenceFrame | null>(null);
   const [formState, setFormState] = useState({
