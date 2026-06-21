@@ -2,6 +2,7 @@
 title: "Configure Frame of Reference and Position"
 type: "use-case"
 spec_source: "RFC 9179"
+issue_id: 10
 ---
 
 # Use Case: Configure Frame of Reference and Position

@@ -2,6 +2,7 @@
 title: "Monitor Dynamic Geolocation and Expiration"
 type: "use-case"
 spec_source: "https://datatracker.ietf.org/doc/rfc9179/"
+issue_id: 11
 ---
 
 # Use Case: Monitor Dynamic Geolocation and Expiration
