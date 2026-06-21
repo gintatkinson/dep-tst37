@@ -3,6 +3,7 @@ title: "Geolocation Temporal Expiration"
 type: "user-story"
 spec_source: "https://datatracker.ietf.org/doc/rfc9179/"
 issue_id: 9
+generation_mode: subagent
 ---
 
 # User Story: Geolocation Temporal Expiration

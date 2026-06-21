@@ -3,6 +3,7 @@ title: "Cartesian Coordinate Positioning"
 type: "user-story"
 spec_source: "https://datatracker.ietf.org/doc/rfc9179/"
 issue_id: 6
+generation_mode: subagent
 ---
 
 # User Story: Cartesian Coordinate Positioning

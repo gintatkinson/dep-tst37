@@ -3,6 +3,7 @@ title: "Alternate Reference System Simulation"
 type: "user-story"
 spec_source: "RFC 9179 Section 6"
 issue_id: 7
+generation_mode: subagent
 ---
 
 # User Story: Alternate Reference System Simulation

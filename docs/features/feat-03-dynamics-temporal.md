@@ -3,6 +3,7 @@ title: "Geolocation Dynamics and Temporal Context"
 epic: "epic-01-geo-location"
 type: "feature"
 interface_type: "ui"
+generation_mode: subagent
 labels: ["feature", "geo-location"]
 issue_id: 3
 ---
@@ -15,15 +16,31 @@ This feature captures the motion dynamics of the geo-located object using 3D vel
 ## UML Class Diagram
 ```mermaid
 classDiagram
+    class UserActor {
+    }
+    class GeolocationSubsystem {
+        <<component>>
+    }
     class Velocity {
         +Decimal64 vNorth [0..1]
         +Decimal64 vEast [0..1]
         +Decimal64 vUp [0..1]
+        +getDerivedDynamics() : DynamicsResult [1]
+    }
+    class VelocityCalculator {
+        +calculateSpeedAndHeading(vNorth : Decimal64, vEast : Decimal64) : DynamicsResult [1]
     }
     class TemporalContext {
         +String timestamp [0..1]
         +String validUntil [0..1]
+        +checkValidity(currentTime : String) : Boolean [1]
     }
+
+    UserActor --> GeolocationSubsystem
+    GeolocationSubsystem *-- Velocity
+    GeolocationSubsystem *-- TemporalContext
+    Velocity --> VelocityCalculator
+    UserActor --> TemporalContext
 ```
 
 ## Interface Requirements
@@ -47,7 +64,7 @@ classDiagram
 - `timestamp`: Optional. Must conform to `yang:date-and-time` standard.
 - `valid-until`: Optional. Must conform to `yang:date-and-time` standard. If specified, must be greater than or equal to `timestamp`.
 
-### 3. Visual Layout / Logical Operations & Interface Messages
+### 3. Visual Layout & Arrangement / Telemetry Logs & Density Table
 - **For UI**: Dynamic alerts and telemetry logs displayed in `DensityTable` using layout container `history_pane`.
 - **For API/M2M**: Exposes GET on `/geo-location/velocity` and `/geo-location/timestamp` to read telemetry and validity bounds.
 

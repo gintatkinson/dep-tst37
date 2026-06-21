@@ -16,15 +16,20 @@ This feature specifies the configuration of the geographical frame of reference,
 ## UML Class Diagram
 ```mermaid
 classDiagram
+    class UserActor {
+    }
     class ReferenceFrame {
         +String alternateSystem [0..1]
         +String astronomicalBody [1]
+        +configureAlternateSystem(altSys : String, body : String) : Status [1]
     }
     class GeodeticSystem {
         +String geodeticDatum [1]
         +Decimal64 coordAccuracy [0..1]
         +Decimal64 heightAccuracy [0..1]
+        +applyDatumOverride(datum : String) : Boolean [1]
     }
+    UserActor --> ReferenceFrame
     ReferenceFrame *-- GeodeticSystem
 ```
 

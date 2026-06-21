@@ -3,6 +3,7 @@ title: "Ellipsoidal Positioning on Earth"
 type: "user-story"
 spec_source: "https://datatracker.ietf.org/doc/rfc9179/"
 issue_id: 5
+generation_mode: subagent
 ---
 
 # User Story: Ellipsoidal Positioning on Earth

@@ -4,6 +4,7 @@ title: "Geographic Position Resolution"
 epic: "epic-01-geo-location"
 type: "feature"
 interface_type: "ui"
+generation_mode: subagent
 labels: ["feature", "geo-location"]
 ---
 
@@ -15,8 +16,17 @@ This feature enables coordinate choice resolution between standard ellipsoidal r
 ## UML Class Diagram
 ```mermaid
 classDiagram
+    class UserActor {
+    }
+    class DomainRegistry {
+        +getGeographicLocation() : GeoLocation [1]
+    }
+    class LocationService {
+        +updateGeographicLocation(loc : GeoLocation) : Status [1]
+    }
     class LocationChoice {
         <<choice>>
+        +selectCartesianCoordinates(x : Decimal64, y : Decimal64, z : Decimal64) : Status [1]
     }
     class EllipsoidLocation {
         +Decimal64 latitude [1]
@@ -27,9 +37,15 @@ classDiagram
         +Decimal64 x [1]
         +Decimal64 y [1]
         +Decimal64 z [1]
+        +setCoordinates(x : Decimal64, y : Decimal64, z : Decimal64) : Boolean [1]
     }
+
+    UserActor --> DomainRegistry
+    UserActor --> LocationService
+    LocationService *-- LocationChoice
     LocationChoice <|-- EllipsoidLocation
     LocationChoice <|-- CartesianLocation
+    DomainRegistry *-- LocationChoice
 ```
 
 ## Interface Requirements
@@ -53,7 +69,7 @@ classDiagram
 - `height`: Optional. Must be decimal64 with exactly 6 fraction digits.
 - `x`, `y`, `z`: Cartesian components. Must be decimal64 with exactly 6 fraction digits.
 
-### 3. Visual Layout / Logical Operations & Interface Messages
+### 3. Visual Layout & Arrangement / Logical Operations & Interface Messages
 - **For UI**: Renders position on a high-density `TopologyMap` layout. State updates must not cause DOM unmounting.
 - **For API/M2M**: Exposes GET/PUT operations on `/geo-location/location` to read and write location coordinates.
 
