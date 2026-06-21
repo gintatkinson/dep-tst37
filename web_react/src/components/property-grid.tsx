@@ -5,6 +5,10 @@ import { DomainValidationError } from '../domain/validation';
 import type { ValidationError } from '../domain/validation';
 import styles from './property-grid.module.css';
 
+interface PropertyGridProps {
+  activeView?: 'geodetic' | 'alternate' | 'all';
+}
+
 /**
  * PropertyGrid Component.
  * Form-based management of GeoLocation parameters including Reference Frame details,
@@ -13,7 +17,7 @@ import styles from './property-grid.module.css';
  * @realizes UML:PropertyGrid
  * @returns {React.ReactElement} The rendered React property grid form.
  */
-export const PropertyGrid: React.FC = () => {
+export const PropertyGrid: React.FC<PropertyGridProps> = ({ activeView = 'all' }) => {
   const { geoLocation, loading, error, saveGeoLocation } = useGeoLocation();
 
   const [prevGeoLocation, setPrevGeoLocation] = useState<GeoLocation | null>(null);
@@ -223,10 +227,10 @@ export const PropertyGrid: React.FC = () => {
     >
       {/* Reference Frame Parameters */}
       {renderField('astronomicalBody', 'Astronomical Body')}
-      {renderField('alternateSystem', 'Alternate System')}
-      {renderField('geodeticDatum', 'Geodetic Datum')}
-      {renderField('coordAccuracy', 'Coordinate Accuracy', 'number', 'any')}
-      {renderField('heightAccuracy', 'Height Accuracy', 'number', 'any')}
+      {activeView !== 'geodetic' && renderField('alternateSystem', 'Alternate System')}
+      {activeView !== 'alternate' && renderField('geodeticDatum', 'Geodetic Datum')}
+      {activeView !== 'alternate' && renderField('coordAccuracy', 'Coordinate Accuracy', 'number', 'any')}
+      {activeView !== 'alternate' && renderField('heightAccuracy', 'Height Accuracy', 'number', 'any')}
 
       {/* Coordinate Type Dropdown */}
       <div className={styles.fieldContainer}>

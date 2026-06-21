@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { MockGeoLocationRepository } from './persistence/mock-repository';
 import { GeoLocationProvider } from './context/GeoLocationContext';
 import { Layout as SidebarLayout } from './components/layout';
@@ -13,11 +13,12 @@ import { PropertyGrid } from './components/property-grid';
  */
 function App(): React.ReactElement {
   const repository = useMemo(() => new MockGeoLocationRepository(), []);
+  const [activeView, setActiveView] = useState<'geodetic' | 'alternate' | 'all'>('all');
 
   return (
     <GeoLocationProvider repository={repository}>
-      <SidebarLayout>
-        <PropertyGrid />
+      <SidebarLayout activeView={activeView} onViewChange={setActiveView}>
+        <PropertyGrid activeView={activeView} />
       </SidebarLayout>
     </GeoLocationProvider>
   );

@@ -4,6 +4,8 @@ import styles from './layout.module.css';
 
 interface LayoutProps {
   children?: React.ReactNode;
+  activeView?: 'geodetic' | 'alternate' | 'all';
+  onViewChange?: (view: 'geodetic' | 'alternate' | 'all') => void;
 }
 
 /**
@@ -14,7 +16,7 @@ interface LayoutProps {
  * @realizes UML:Layout
  * @returns {React.ReactElement} The rendered Sidebar and Split Workspace layout.
  */
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', onViewChange }) => {
   const [sidebarWidth, setSidebarWidth] = useState(260);
   const [topologyHeight, setTopologyHeight] = useState(400);
 
@@ -58,7 +60,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (workspaceRef.current) {
       const rect = workspaceRef.current.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
-      const clampedHeight = Math.max(200, Math.min(600, newHeight));
+      const minHeight = 200;
+      const maxHeight = Math.max(minHeight, rect.height - minHeight);
+      const clampedHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
       setTopologyHeight(clampedHeight);
     }
   };
@@ -88,10 +92,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <span className={styles.navHeader}>Reference Frame</span>
               <ul>
                 <li>
-                  <span className={styles.navItem}>Geodetic System</span>
+                  <span
+                    className={`${styles.navItem} ${activeView === 'geodetic' ? styles.active : ''}`}
+                    onClick={() => onViewChange?.('geodetic')}
+                  >
+                    Geodetic System
+                  </span>
                 </li>
                 <li>
-                  <span className={styles.navItem}>Alternate System</span>
+                  <span
+                    className={`${styles.navItem} ${activeView === 'alternate' ? styles.active : ''}`}
+                    onClick={() => onViewChange?.('alternate')}
+                  >
+                    Alternate System
+                  </span>
                 </li>
               </ul>
             </li>

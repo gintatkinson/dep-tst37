@@ -54,7 +54,6 @@
 .topologyPane {
   height: var(--topology-height, 400px);
   min-height: 200px;
-  max-height: 600px;
   width: 100%;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -105,5 +104,10 @@
 }
 
 .navItem:hover {
+  color: var(--accent);
+}
+
+.active {
+  font-weight: bold;
   color: var(--accent);
 }

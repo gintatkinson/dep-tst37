@@ -192,6 +192,7 @@ describe('Layout Component', () => {
     const splitter = screen.getByTestId('workspace-splitter');
     const wrapper = screen.getByTestId('layout-wrapper');
 
+    // Case 1: Workspace height is 800px
     mainWorkspace.getBoundingClientRect = vi.fn().mockReturnValue({
       left: 260,
       top: 0,
@@ -220,6 +221,32 @@ describe('Layout Component', () => {
     // End drag
     fireEvent.pointerUp(splitter, { pointerId: 2 });
     expect(splitter.releasePointerCapture).toHaveBeenCalledWith(2);
+
+    // Case 2: Workspace height is 1000px
+    mainWorkspace.getBoundingClientRect = vi.fn().mockReturnValue({
+      left: 260,
+      top: 0,
+      right: 1000,
+      bottom: 1000,
+      width: 740,
+      height: 1000,
+    });
+
+    // Start drag
+    fireEvent.pointerDown(splitter, { pointerId: 4 });
+    expect(splitter.setPointerCapture).toHaveBeenCalledWith(4);
+
+    // Move within bounds up to 800px (e.g. 800px) - should be 800px
+    fireEvent.pointerMove(splitter, { pointerId: 4, clientY: 800 });
+    expect(wrapper).toHaveStyle('--topology-height: 800px');
+
+    // Move above maximum bounds (e.g. 900px) - should clamp to 800px
+    fireEvent.pointerMove(splitter, { pointerId: 4, clientY: 900 });
+    expect(wrapper).toHaveStyle('--topology-height: 800px');
+
+    // End drag
+    fireEvent.pointerUp(splitter, { pointerId: 4 });
+    expect(splitter.releasePointerCapture).toHaveBeenCalledWith(4);
   });
 
   it('should preserve input focus and DOM state when split workspace is resized', () => {
@@ -250,6 +277,47 @@ describe('Layout Component', () => {
     expect(screen.getByTestId('test-input')).toBeInTheDocument();
     expect(document.activeElement).toBe(input);
     expect(input.value).toBe('test-value');
+  });
+
+  it('should trigger onViewChange callback with correct view name when navigation spans are clicked', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    const onViewChangeMock = vi.fn();
+    render(<Layout activeView="all" onViewChange={onViewChangeMock} />);
+
+    const geodeticSpan = screen.getByText('Geodetic System');
+    const alternateSpan = screen.getByText('Alternate System');
+
+    fireEvent.click(geodeticSpan);
+    expect(onViewChangeMock).toHaveBeenCalledWith('geodetic');
+
+    fireEvent.click(alternateSpan);
+    expect(onViewChangeMock).toHaveBeenCalledWith('alternate');
+  });
+
+  it('should conditionally append active class name to the active view span', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    const { rerender } = render(<Layout activeView="geodetic" />);
+    const geodeticSpan = screen.getByText('Geodetic System');
+    const alternateSpan = screen.getByText('Alternate System');
+
+    expect(geodeticSpan.className).toContain('active');
+    expect(alternateSpan.className).not.toContain('active');
+
+    rerender(<Layout activeView="alternate" />);
+    expect(geodeticSpan.className).not.toContain('active');
+    expect(alternateSpan.className).toContain('active');
   });
 });
 
@@ -551,6 +619,44 @@ describe('PropertyGrid Component', () => {
     fireEvent.change(select, { target: { value: 'ellipsoid' } });
     
     expect(screen.getByTestId('error-latitude')).toHaveTextContent('latitude fraction digits must be exactly 16.');
+  });
+
+  it('should hide/show fields based on activeView prop', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: {
+        referenceFrame: {
+          astronomicalBody: 'earth',
+          alternateSystem: 'alt-1',
+          geodeticSystem: {
+            geodeticDatum: 'wgs-84',
+            coordAccuracy: 0.5,
+            heightAccuracy: 1.2,
+          },
+        },
+      },
+      loading: false,
+      error: null,
+      saveGeoLocation: mockSaveGeoLocation,
+    });
+
+    const { rerender } = render(<PropertyGrid activeView="geodetic" />);
+
+    // Under geodetic view, alternate system parameter should be hidden
+    expect(screen.queryByLabelText(/Alternate System/i)).not.toBeInTheDocument();
+    // Geodetic parameters should be visible
+    expect(screen.getByLabelText(/Geodetic Datum/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Coordinate Accuracy/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Height Accuracy/i)).toBeInTheDocument();
+
+    // Rerender with alternate view
+    rerender(<PropertyGrid activeView="alternate" />);
+
+    // Under alternate view, alternate system parameter should be visible
+    expect(screen.getByLabelText(/Alternate System/i)).toBeInTheDocument();
+    // Geodetic parameters should be hidden
+    expect(screen.queryByLabelText(/Geodetic Datum/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Coordinate Accuracy/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Height Accuracy/i)).not.toBeInTheDocument();
   });
 });
 
