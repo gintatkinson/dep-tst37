@@ -17,13 +17,15 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-h);
 }
 
 .input {
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #d1d5db;
+  background-color: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
   border-radius: 4px;
   outline: none;
   box-sizing: border-box;
@@ -37,7 +39,9 @@
 .inputError {
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ef4444;
+  background-color: var(--bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
   border-radius: 4px;
   outline: none;
   box-sizing: border-box;

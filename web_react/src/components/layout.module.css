@@ -13,6 +13,8 @@
   flex-shrink: 0;
   overflow-y: auto;
   box-sizing: border-box;
+  background-color: var(--code-bg);
+  border-right: 1px solid var(--border);
 }
 
 .splitter {
@@ -36,9 +38,16 @@
   font-weight: bold;
   padding: 8px 16px;
   display: block;
+  color: var(--text-h);
 }
 
 .navItem {
   padding: 6px 32px;
   display: block;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.navItem:hover {
+  color: var(--accent);
 }
