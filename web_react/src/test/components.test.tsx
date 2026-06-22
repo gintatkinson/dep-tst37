@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Layout } from '../components/layout';
 import { Header } from '../components/header';
 import { PropertyGrid } from '../components/property-grid';
 import { TopologyMap } from '../components/topology-map';
+import { TabbedContainer } from '../components/tabbed-container';
+import { TableView } from '../components/table-view';
 import { useGeoLocation } from '../context/GeoLocationContext';
 import { DomainValidationError } from '../domain/validation';
 import layoutStyles from '../components/layout.module.css';
@@ -11,6 +13,15 @@ import layoutStyles from '../components/layout.module.css';
 // Mock the GeoLocationContext hook
 vi.mock('../context/GeoLocationContext', () => ({
   useGeoLocation: vi.fn(),
+}));
+
+const mockSetTheme = vi.fn();
+vi.mock('../context/ThemeContext', () => ({
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: mockSetTheme,
+    resolvedTheme: 'light',
+  }),
 }));
 
 describe('Layout Component', () => {
@@ -317,8 +328,9 @@ describe('Layout Component', () => {
     const onViewChangeMock = vi.fn();
     render(<Layout activeView="all" onViewChange={onViewChangeMock} />);
 
-    const geodeticSpan = screen.getByText('Geodetic System');
-    const alternateSpan = screen.getByText('Alternate System');
+    const sidebar = screen.getByTestId('sidebar-nav');
+    const geodeticSpan = within(sidebar).getByText('Geodetic System');
+    const alternateSpan = within(sidebar).getByText('Alternate System');
 
     fireEvent.click(geodeticSpan);
     expect(onViewChangeMock).toHaveBeenCalledWith('geodetic');
@@ -336,13 +348,17 @@ describe('Layout Component', () => {
     });
 
     const { rerender } = render(<Layout activeView="geodetic" />);
-    const geodeticSpan = screen.getByText('Geodetic System');
-    const alternateSpan = screen.getByText('Alternate System');
+    let sidebar = screen.getByTestId('sidebar-nav');
+    let geodeticSpan = within(sidebar).getByText('Geodetic System');
+    let alternateSpan = within(sidebar).getByText('Alternate System');
 
     expect(geodeticSpan.className).toContain('active');
     expect(alternateSpan.className).not.toContain('active');
 
     rerender(<Layout activeView="alternate" />);
+    sidebar = screen.getByTestId('sidebar-nav');
+    geodeticSpan = within(sidebar).getByText('Geodetic System');
+    alternateSpan = within(sidebar).getByText('Alternate System');
     expect(geodeticSpan.className).not.toContain('active');
     expect(alternateSpan.className).toContain('active');
   });
@@ -757,7 +773,7 @@ describe('Header Component', () => {
     render(<Header onMenuClick={onMenuClickMock} />);
 
     expect(screen.getByTestId('gcp-header')).toBeInTheDocument();
-    expect(screen.getByText('Google Cloud')).toBeInTheDocument();
+    expect(screen.getByText('Network Inventory Location')).toBeInTheDocument();
     expect(screen.getByTestId('project-selector')).toHaveTextContent('ietf-ni-location');
     expect(screen.getByPlaceholderText('Search resources, services, and products')).toBeInTheDocument();
     expect(screen.getByTestId('cloud-shell-button')).toBeInTheDocument();
@@ -770,6 +786,106 @@ describe('Header Component', () => {
     const toggleButton = screen.getByTestId('menu-toggle-button');
     fireEvent.click(toggleButton);
     expect(onMenuClickMock).toHaveBeenCalled();
+  });
+
+  it('renders theme selector buttons and triggers setTheme when clicked', () => {
+    render(<Header />);
+    const lightButton = screen.getByTestId('theme-toggle-light');
+    const darkButton = screen.getByTestId('theme-toggle-dark');
+    const systemButton = screen.getByTestId('theme-toggle-system');
+
+    expect(lightButton).toBeInTheDocument();
+    expect(darkButton).toBeInTheDocument();
+    expect(systemButton).toBeInTheDocument();
+
+    fireEvent.click(darkButton);
+    expect(mockSetTheme).toHaveBeenCalledWith('dark');
+
+    fireEvent.click(systemButton);
+    expect(mockSetTheme).toHaveBeenCalledWith('system');
+  });
+});
+
+describe('TabbedContainer Component', () => {
+  it('renders with bottom-docked tabs: Properties, Elements, Alarms, Events', () => {
+    const mockTabs = [
+      { label: 'Properties', content: <div data-testid="prop-content">Properties Panel</div> },
+      { label: 'Elements', content: <div data-testid="elem-content">Elements Panel</div> },
+      { label: 'Alarms', content: <div data-testid="alarm-content">Alarms Panel</div> },
+      { label: 'Events', content: <div data-testid="event-content">Events Panel</div> },
+    ];
+
+    render(<TabbedContainer tabs={mockTabs} />);
+
+    expect(screen.getByTestId('tabbed-container')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-bar')).toBeInTheDocument();
+
+    expect(screen.getByTestId('tab-button-properties')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-button-elements')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-button-alarms')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-button-events')).toBeInTheDocument();
+
+    // Default active tab should be Properties
+    expect(screen.getByTestId('prop-content')).toBeInTheDocument();
+    expect(screen.queryByTestId('elem-content')).not.toBeInTheDocument();
+
+    // Click Elements tab
+    fireEvent.click(screen.getByTestId('tab-button-elements'));
+    expect(screen.getByTestId('elem-content')).toBeInTheDocument();
+    expect(screen.queryByTestId('prop-content')).not.toBeInTheDocument();
+  });
+});
+
+describe('TableView Component', () => {
+  it('displays Elements table view with correct columns, labels and alarm badge', () => {
+    render(<TableView type="elements" />);
+
+    expect(screen.getByTestId('table-elements')).toBeInTheDocument();
+    expect(screen.getByText('Object')).toBeInTheDocument();
+    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('Type')).toBeInTheDocument();
+    expect(screen.getByText('Primary State')).toBeInTheDocument();
+    expect(screen.getByText('Alarms Summary')).toBeInTheDocument();
+
+    expect(screen.getByText('BTS22')).toBeInTheDocument();
+    expect(screen.getByText('London')).toBeInTheDocument();
+    expect(screen.getByText('BTS11')).toBeInTheDocument();
+    expect(screen.getByText('1 M+')).toBeInTheDocument();
+    expect(screen.getByText('1 m')).toBeInTheDocument();
+    expect(screen.getByText('4 W')).toBeInTheDocument();
+    expect(screen.getAllByTestId('icon-bts').length).toBe(2);
+    expect(screen.getAllByTestId('icon-bsc').length).toBe(1);
+  });
+
+  it('displays Alarms table view with correct columns and severity badges', () => {
+    render(<TableView type="alarms" />);
+
+    expect(screen.getByTestId('table-alarms')).toBeInTheDocument();
+    expect(screen.getByText('Severity')).toBeInTheDocument();
+    expect(screen.getByText('Target')).toBeInTheDocument();
+    expect(screen.getByText('Type')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Timestamp')).toBeInTheDocument();
+
+    expect(screen.getByText('M+')).toBeInTheDocument();
+    expect(screen.getByText('m')).toBeInTheDocument();
+    expect(screen.getByText('W')).toBeInTheDocument();
+    expect(screen.getByText('Alarm 3_ - Antenna degraded')).toBeInTheDocument();
+  });
+
+  it('displays Events table view with correct columns', () => {
+    render(<TableView type="events" />);
+
+    expect(screen.getByTestId('table-events')).toBeInTheDocument();
+    expect(screen.getByText('Event ID')).toBeInTheDocument();
+    expect(screen.getByText('Type')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Timestamp')).toBeInTheDocument();
+
+    expect(screen.getByText('EV001')).toBeInTheDocument();
+    expect(screen.getByText('EV002')).toBeInTheDocument();
+    expect(screen.getByText('Reference Frame config modified')).toBeInTheDocument();
+    expect(screen.getByText('Datum set to WGS-84')).toBeInTheDocument();
   });
 });
 
@@ -792,12 +908,12 @@ describe('Layout Sidebar Collapse Integration', () => {
     expect(sidebar.className).toContain('collapsed');
 
     // Labels should be hidden
-    expect(screen.queryByText('Geodetic System')).not.toBeInTheDocument();
-    expect(screen.queryByText('Alternate System')).not.toBeInTheDocument();
+    expect(within(sidebar).queryByText('Geodetic System')).not.toBeInTheDocument();
+    expect(within(sidebar).queryByText('Alternate System')).not.toBeInTheDocument();
 
     // Toggle again
     fireEvent.click(toggleButton);
     expect(sidebar.className).not.toContain('collapsed');
-    expect(screen.getByText('Geodetic System')).toBeInTheDocument();
+    expect(within(sidebar).getByText('Geodetic System')).toBeInTheDocument();
   });
 });

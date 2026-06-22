@@ -1,0 +1,95 @@
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--theme-border, var(--border));
+  border-radius: 6px;
+  background-color: var(--theme-surface, var(--surface));
+  box-sizing: border-box;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.table th {
+  background-color: var(--theme-bg, var(--bg));
+  color: var(--theme-label-color, var(--text));
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--theme-border, var(--border));
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.table tr {
+  border-bottom: 1px solid var(--theme-border, var(--border));
+}
+
+.table tr:last-child {
+  border-bottom: none;
+}
+
+.table td {
+  padding: 4px 12px;
+  min-height: 32px;
+  height: 32px; /* Force minimum height via row constraint */
+  color: var(--theme-text, var(--text));
+  vertical-align: middle;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.table tr:hover {
+  background-color: var(--theme-active-bg, rgba(0, 0, 0, 0.02));
+}
+
+.boldCell {
+  font-weight: 500;
+  color: var(--theme-text-h, var(--text-h));
+}
+
+.monoCell {
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.typeIcon {
+  color: var(--theme-label-color, var(--text));
+  display: block;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  color: #ffffff;
+  text-transform: uppercase;
+  min-width: 28px;
+}
+
+/* Severity background classes */
+.critical {
+  background-color: #d93025; /* Red critical */
+  box-shadow: 0 0 2px rgba(217, 48, 37, 0.5);
+}
+
+.minor {
+  background-color: #e67c73; /* Orange minor */
+  color: #ffffff;
+}
+
+.warning {
+  background-color: #f0b400; /* Yellow warning */
+  color: #202124;
+}

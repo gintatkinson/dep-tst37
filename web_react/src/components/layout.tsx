@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { TopologyMap } from './topology-map';
 import { Header } from './header';
+import { TabbedContainer } from './tabbed-container';
+import { PropertyGrid } from './property-grid';
+import { TableView } from './table-view';
 import styles from './layout.module.css';
 
 interface LayoutProps {
@@ -80,6 +83,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
     }
   };
 
+  const tabs = [
+    { label: 'Properties', content: children || <PropertyGrid activeView={activeView} /> },
+    { label: 'Elements', content: <TableView type="elements" /> },
+    { label: 'Alarms', content: <TableView type="alarms" /> },
+    { label: 'Events', content: <TableView type="events" /> },
+  ];
+
   return (
     <div className={styles.layoutContainer}>
       <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
@@ -127,7 +137,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
                       onClick={() => onViewChange?.('alternate')}
                     >
                       <svg className={styles.navIcon} viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M12 2.05L3.5 6.96v9.89L12 21.8l8.5-4.95V6.96L12 2.05zm-1 16.89l-5.5-3.2v-5.9l5.5 3.2v5.9zm1-7.14L6.5 8.6 12 5.4l5.5 3.2L12 11.8zm6.5 3.95l-5.5 3.2v-5.9l5.5-3.2v-5.9z"/>
+                        <path d="M12 2.05L3.5 6.96v9.89L12 21.8l8.5-4.95V6.96L12 2.05zm-1 16.89l-5.5-3.2v-5.9l5.5 3.2v-5.9zm1-7.14L6.5 8.6 12 5.4l5.5 3.2L12 11.8zm6.5 3.95l-5.5 3.2v-5.9l5.5-3.2v-5.9z"/>
                       </svg>
                       {!isSidebarCollapsed && 'Alternate System'}
                     </span>
@@ -172,7 +182,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
             data-testid="details-pane"
             className={styles.detailsPane}
           >
-            {children}
+            <TabbedContainer tabs={tabs} />
           </div>
         </main>
       </div>

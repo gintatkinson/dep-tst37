@@ -1,0 +1,52 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panelContent {
+  flex-grow: 1;
+  overflow-y: auto;
+  width: 100%;
+  background-color: var(--theme-bg, var(--bg));
+  color: var(--theme-text, var(--text));
+  box-sizing: border-box;
+}
+
+.tabBar {
+  display: flex;
+  height: 40px;
+  border-top: 1px solid var(--theme-border, var(--border));
+  background-color: var(--theme-surface, var(--surface));
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.tabButton {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--theme-text, var(--text));
+  transition: all 0.15s ease;
+  outline: none;
+  border-top: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabButton:hover {
+  background-color: var(--theme-active-bg, rgba(0, 0, 0, 0.04));
+}
+
+.activeTab {
+  border-top: 2px solid var(--theme-active-border, #1a73e8);
+  background-color: var(--theme-active-bg, #e8f0fe);
+  color: var(--theme-active-text, #1a73e8);
+}

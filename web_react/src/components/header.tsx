@@ -1,11 +1,15 @@
 import React from 'react';
 import styles from './header.module.css';
+import designTokens from '../../../.pipeline/logical-ui/design-tokens.json';
+import { useTheme } from '../context/ThemeContext';
 
 export interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const { theme, setTheme } = useTheme();
+
   return (
     <header className={styles.header} data-testid="gcp-header">
       {/* Left side */}
@@ -32,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           >
             <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" />
           </svg>
-          <span className={styles.brandName}>Google Cloud</span>
+          <span className={styles.brandName}>{designTokens.branding['console-title']}</span>
         </div>
 
         <div className={styles.separator} />
@@ -61,6 +65,33 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
       {/* Right side controls */}
       <div className={styles.rightSection}>
+        <div className={styles.themeSelector} data-testid="theme-selector">
+          <button
+            onClick={() => setTheme('light')}
+            className={`${styles.themeButton} ${theme === 'light' ? styles.activeThemeButton : ''}`}
+            data-testid="theme-toggle-light"
+            aria-label="Light mode"
+          >
+            Light
+          </button>
+          <button
+            onClick={() => setTheme('dark')}
+            className={`${styles.themeButton} ${theme === 'dark' ? styles.activeThemeButton : ''}`}
+            data-testid="theme-toggle-dark"
+            aria-label="Dark mode"
+          >
+            Dark
+          </button>
+          <button
+            onClick={() => setTheme('system')}
+            className={`${styles.themeButton} ${theme === 'system' ? styles.activeThemeButton : ''}`}
+            data-testid="theme-toggle-system"
+            aria-label="System mode"
+          >
+            System
+          </button>
+        </div>
+
         <button className={styles.iconButton} aria-label="Cloud Shell" data-testid="cloud-shell-button">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
             <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 14H4V6h16v12zm-2-1h-6v-2h6v2zm-7.27-1.56L8.56 18 4 14l4.56-4 2.17 1.44L7.56 14l3.17 2.44z" />
