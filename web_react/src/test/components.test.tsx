@@ -624,7 +624,7 @@ describe('PropertyGrid Component', () => {
       {
         type: 'constraint-violation',
         path: '/location/ellipsoid/latitude',
-        message: 'latitude fraction digits must be exactly 16.',
+        message: 'latitude fraction digits must be at most 16.',
       },
     ]);
 
@@ -644,7 +644,7 @@ describe('PropertyGrid Component', () => {
     const select = screen.getByTestId('coordinate-type-select');
     fireEvent.change(select, { target: { value: 'ellipsoid' } });
     
-    expect(screen.getByTestId('error-latitude')).toHaveTextContent('latitude fraction digits must be exactly 16.');
+    expect(screen.getByTestId('error-latitude')).toHaveTextContent('latitude fraction digits must be at most 16.');
   });
 
   it('should hide/show fields based on activeView prop', () => {

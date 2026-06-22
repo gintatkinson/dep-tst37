@@ -90,7 +90,7 @@ describe('Persistence Layer & Context', () => {
       const invalidDecimals: GeoLocation = {
         referenceFrame: { astronomicalBody: 'earth' },
         location: {
-          cartesian: { x: 100.123, y: 100.123456, z: 100.123456 }
+          cartesian: { x: 100.1234567, y: 100.123456, z: 100.123456 }
         }
       };
       await expect(repo.save(invalidDecimals)).rejects.toThrow(DomainValidationError);

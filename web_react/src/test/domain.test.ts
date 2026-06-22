@@ -66,15 +66,22 @@ describe('Domain Models and Validation Rules', () => {
       expect(() => validateReferenceFrame(invalidFrame)).toThrow(DomainValidationError);
     });
 
-    it('should reject coord-accuracy not having exactly 6 decimal places', () => {
-      const invalidFrame1 = {
+    it('should reject coord-accuracy exceeding 6 decimal places', () => {
+      const validFrame1 = {
         astronomicalBody: 'earth',
         geodeticSystem: {
           geodeticDatum: 'wgs-84',
-          coordAccuracy: 0.12345, // 5 decimals
+          coordAccuracy: 0.1,
         },
       };
-      const invalidFrame2 = {
+      const validFrame2 = {
+        astronomicalBody: 'earth',
+        geodeticSystem: {
+          geodeticDatum: 'wgs-84',
+          coordAccuracy: 0.123456,
+        },
+      };
+      const invalidFrame = {
         astronomicalBody: 'earth',
         geodeticSystem: {
           geodeticDatum: 'wgs-84',
@@ -82,19 +89,20 @@ describe('Domain Models and Validation Rules', () => {
         },
       };
 
-      expect(() => validateReferenceFrame(invalidFrame1)).toThrow(DomainValidationError);
-      expect(() => validateReferenceFrame(invalidFrame2)).toThrow(DomainValidationError);
+      expect(validateReferenceFrame(validFrame1).geodeticSystem?.coordAccuracy).toBe(0.1);
+      expect(validateReferenceFrame(validFrame2).geodeticSystem?.coordAccuracy).toBe(0.123456);
+      expect(() => validateReferenceFrame(invalidFrame)).toThrow(DomainValidationError);
     });
 
-    it('should reject height-accuracy not having exactly 6 decimal places', () => {
-      const invalidFrame1 = {
+    it('should reject height-accuracy exceeding 6 decimal places', () => {
+      const validFrame = {
         astronomicalBody: 'earth',
         geodeticSystem: {
           geodeticDatum: 'wgs-84',
           heightAccuracy: 0.12345, // 5 decimals
         },
       };
-      const invalidFrame2 = {
+      const invalidFrame = {
         astronomicalBody: 'earth',
         geodeticSystem: {
           geodeticDatum: 'wgs-84',
@@ -102,8 +110,8 @@ describe('Domain Models and Validation Rules', () => {
         },
       };
 
-      expect(() => validateReferenceFrame(invalidFrame1)).toThrow(DomainValidationError);
-      expect(() => validateReferenceFrame(invalidFrame2)).toThrow(DomainValidationError);
+      expect(validateReferenceFrame(validFrame).geodeticSystem?.heightAccuracy).toBe(0.12345);
+      expect(() => validateReferenceFrame(invalidFrame)).toThrow(DomainValidationError);
     });
 
     it('should reject negative coord-accuracy or height-accuracy', () => {
@@ -305,73 +313,110 @@ describe('Domain Models and Validation Rules', () => {
       expect(() => validateGeoLocation(lonTooLow)).toThrow(DomainValidationError);
     });
 
-    it('should reject if latitude or longitude do not have exactly 16 decimal places', () => {
-      const latWrongDecimals = {
+    it('should reject if latitude or longitude exceed 16 decimal places', () => {
+      const latValidDecimals1 = {
         location: {
           ellipsoid: {
-            latitude: "37.774929000000000",
+            latitude: "37.774929",
             longitude: "-122.4194160000000000",
           },
         },
       };
-      const lonWrongDecimals = {
+      const latValidDecimals2 = {
         location: {
           ellipsoid: {
-            latitude: "37.7749290000000000",
-            longitude: "-122.41941600000000000",
+            latitude: "88.7657645",
+            longitude: "-122.4194160000000000",
           },
         },
       };
-
-      expect(() => validateGeoLocation(latWrongDecimals)).toThrow(DomainValidationError);
-      expect(() => validateGeoLocation(lonWrongDecimals)).toThrow(DomainValidationError);
-    });
-
-    it('should reject if height does not have exactly 6 decimal places', () => {
-      const heightWrongDecimals = {
+      const latValidDecimals3 = {
+        location: {
+          ellipsoid: {
+            latitude: "37.774929",
+            longitude: "120.5437",
+          },
+        },
+      };
+      const latValidDecimals4 = {
         location: {
           ellipsoid: {
             latitude: "37.7749290000000000",
             longitude: "-122.4194160000000000",
-            height: "10.12345",
           },
         },
       };
-      expect(() => validateGeoLocation(heightWrongDecimals)).toThrow(DomainValidationError);
+      const latTooManyDecimals = {
+        location: {
+          ellipsoid: {
+            latitude: "37.77492900000000000", // 17 decimals
+            longitude: "-122.4194160000000000",
+          },
+        },
+      };
+
+      expect(validateGeoLocation(latValidDecimals1).location?.ellipsoid?.latitude).toBe(37.774929);
+      expect(validateGeoLocation(latValidDecimals2).location?.ellipsoid?.latitude).toBe(88.7657645);
+      expect(validateGeoLocation(latValidDecimals3).location?.ellipsoid?.longitude).toBe(120.5437);
+      expect(validateGeoLocation(latValidDecimals4).location?.ellipsoid?.latitude).toBe(37.774929);
+      expect(() => validateGeoLocation(latTooManyDecimals)).toThrow(DomainValidationError);
     });
 
-    it('should reject if x, y, or z do not have exactly 6 decimal places', () => {
-      const xWrong = {
+    it('should reject if height exceeds 6 decimal places', () => {
+      const heightValid1 = {
+        location: {
+          ellipsoid: {
+            latitude: "37.7749290000000000",
+            longitude: "-122.4194160000000000",
+            height: "8000",
+          },
+        },
+      };
+      const heightValid2 = {
+        location: {
+          ellipsoid: {
+            latitude: "37.7749290000000000",
+            longitude: "-122.4194160000000000",
+            height: "10.123456",
+          },
+        },
+      };
+      const heightInvalid = {
+        location: {
+          ellipsoid: {
+            latitude: "37.7749290000000000",
+            longitude: "-122.4194160000000000",
+            height: "10.1234567",
+          },
+        },
+      };
+      expect(validateGeoLocation(heightValid1).location?.ellipsoid?.height).toBe(8000);
+      expect(validateGeoLocation(heightValid2).location?.ellipsoid?.height).toBe(10.123456);
+      expect(() => validateGeoLocation(heightInvalid)).toThrow(DomainValidationError);
+    });
+
+    it('should reject if x, y, or z exceed 6 decimal places', () => {
+      const xValid = {
         location: {
           cartesian: {
-            x: "100.12345",
+            x: "100.1",
             y: "200.123456",
             z: "300.123456",
           },
         },
       };
-      const yWrong = {
+      const xyzInvalid = {
         location: {
           cartesian: {
-            x: "100.123456",
-            y: "200.1234567",
+            x: "100.1234567",
+            y: "200.123456",
             z: "300.123456",
           },
         },
       };
-      const zWrong = {
-        location: {
-          cartesian: {
-            x: "100.123456",
-            y: "200.123456",
-            z: "300.12",
-          },
-        },
-      };
 
-      expect(() => validateGeoLocation(xWrong)).toThrow(DomainValidationError);
-      expect(() => validateGeoLocation(yWrong)).toThrow(DomainValidationError);
-      expect(() => validateGeoLocation(zWrong)).toThrow(DomainValidationError);
+      expect(validateGeoLocation(xValid).location?.cartesian?.x).toBe(100.1);
+      expect(() => validateGeoLocation(xyzInvalid)).toThrow(DomainValidationError);
     });
   });
 });

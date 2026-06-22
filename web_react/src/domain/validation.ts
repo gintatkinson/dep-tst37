@@ -144,11 +144,11 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
           message: 'coord-accuracy must be a number.',
         });
       } else {
-        if (countDecimals(coordAccuracy) !== 6) {
+        if (countDecimals(coordAccuracy) > 6) {
           errors.push({
             type: 'constraint-violation',
             path: '/reference-frame/geodetic-system/coord-accuracy',
-            message: 'coord-accuracy fraction digits must be exactly 6.',
+            message: 'coord-accuracy fraction digits must be at most 6.',
           });
         }
         if (numVal < 0) {
@@ -170,11 +170,11 @@ export function validateReferenceFrame(input: unknown): ReferenceFrame {
           message: 'height-accuracy must be a number.',
         });
       } else {
-        if (countDecimals(heightAccuracy) !== 6) {
+        if (countDecimals(heightAccuracy) > 6) {
           errors.push({
             type: 'constraint-violation',
             path: '/reference-frame/geodetic-system/height-accuracy',
-            message: 'height-accuracy fraction digits must be exactly 6.',
+            message: 'height-accuracy fraction digits must be at most 6.',
           });
         }
         if (numVal < 0) {
@@ -287,13 +287,12 @@ export function validateGeoLocation(input: unknown): GeoLocation {
             });
           }
           // Check precision (16 decimals)
-          const decimals = countDecimals(latVal);
-          const isValidPrecision = typeof latVal === 'number' ? (decimals <= 16) : (decimals === 16);
+          const isValidPrecision = countDecimals(latVal) <= 16;
           if (!isValidPrecision) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/ellipsoid/latitude',
-              message: 'latitude fraction digits must be exactly 16.',
+              message: 'latitude fraction digits must be at most 16.',
             });
           }
           latitude = numLat;
@@ -325,13 +324,12 @@ export function validateGeoLocation(input: unknown): GeoLocation {
             });
           }
           // Check precision (16 decimals)
-          const decimals = countDecimals(lonVal);
-          const isValidPrecision = typeof lonVal === 'number' ? (decimals <= 16) : (decimals === 16);
+          const isValidPrecision = countDecimals(lonVal) <= 16;
           if (!isValidPrecision) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/ellipsoid/longitude',
-              message: 'longitude fraction digits must be exactly 16.',
+              message: 'longitude fraction digits must be at most 16.',
             });
           }
           longitude = numLon;
@@ -350,11 +348,11 @@ export function validateGeoLocation(input: unknown): GeoLocation {
         } else {
           // Check precision (6 decimals)
           const decimals = countDecimals(heightVal);
-          if (decimals !== 6) {
+          if (decimals > 6) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/ellipsoid/height',
-              message: 'height fraction digits must be exactly 6.',
+              message: 'height fraction digits must be at most 6.',
             });
           }
           height = numHeight;
@@ -399,11 +397,11 @@ export function validateGeoLocation(input: unknown): GeoLocation {
           });
         } else {
           const decimals = countDecimals(xVal);
-          if (decimals !== 6) {
+          if (decimals > 6) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/cartesian/x',
-              message: 'x fraction digits must be exactly 6.',
+              message: 'x fraction digits must be at most 6.',
             });
           }
           x = numX;
@@ -427,11 +425,11 @@ export function validateGeoLocation(input: unknown): GeoLocation {
           });
         } else {
           const decimals = countDecimals(yVal);
-          if (decimals !== 6) {
+          if (decimals > 6) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/cartesian/y',
-              message: 'y fraction digits must be exactly 6.',
+              message: 'y fraction digits must be at most 6.',
             });
           }
           y = numY;
@@ -455,11 +453,11 @@ export function validateGeoLocation(input: unknown): GeoLocation {
           });
         } else {
           const decimals = countDecimals(zVal);
-          if (decimals !== 6) {
+          if (decimals > 6) {
             errors.push({
               type: 'constraint-violation',
               path: '/location/cartesian/z',
-              message: 'z fraction digits must be exactly 6.',
+              message: 'z fraction digits must be at most 6.',
             });
           }
           z = numZ;
