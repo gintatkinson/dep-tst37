@@ -6,6 +6,7 @@ interface LayoutProps {
   children?: React.ReactNode;
   activeView?: 'geodetic' | 'alternate' | 'all';
   onViewChange?: (view: 'geodetic' | 'alternate' | 'all') => void;
+  spacing?: { 'layout-min-pane-size'?: string; 'layout-sidebar-width'?: string; [key: string]: any };
 }
 
 /**
@@ -16,7 +17,9 @@ interface LayoutProps {
  * @realizes UML:Layout
  * @returns {React.ReactElement} The rendered Sidebar and Split Workspace layout.
  */
-export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', onViewChange }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', onViewChange, spacing }) => {
+  const minPaneSize = parseInt(spacing?.['layout-min-pane-size'] || '150px', 10);
+
   const [sidebarWidth, setSidebarWidth] = useState(260);
   const [topologyHeight, setTopologyHeight] = useState(400);
 
@@ -37,7 +40,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
       const newWidth = e.clientX - rect.left;
-      const clampedWidth = Math.max(180, Math.min(600, newWidth));
+      const minSidebarWidth = minPaneSize;
+      const clampedWidth = Math.max(minSidebarWidth, Math.min(600, newWidth));
       setSidebarWidth(clampedWidth);
     }
   };
@@ -60,7 +64,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
     if (workspaceRef.current) {
       const rect = workspaceRef.current.getBoundingClientRect();
       const newHeight = e.clientY - rect.top;
-      const minHeight = 200;
+      const minHeight = minPaneSize;
       const maxHeight = Math.max(minHeight, rect.height - minHeight);
       const clampedHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
       setTopologyHeight(clampedHeight);
@@ -80,6 +84,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView = 'all', on
       ref={wrapperRef}
       className={styles.wrapper}
       style={{
+        '--layout-sidebar-width': spacing?.['layout-sidebar-width'] || '280px',
+        '--layout-min-pane-size': spacing?.['layout-min-pane-size'] || '150px',
         '--sidebar-width': `${sidebarWidth}px`,
         '--topology-height': `${topologyHeight}px`,
       } as React.CSSProperties}

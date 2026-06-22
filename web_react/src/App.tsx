@@ -3,6 +3,7 @@ import { MockGeoLocationRepository } from './persistence/mock-repository';
 import { GeoLocationProvider } from './context/GeoLocationContext';
 import { Layout as SidebarLayout } from './components/layout';
 import { PropertyGrid } from './components/property-grid';
+import designTokens from '../../.pipeline/logical-ui/design-tokens.json';
 
 /**
  * Root Application Component.
@@ -17,7 +18,11 @@ function App(): React.ReactElement {
 
   return (
     <GeoLocationProvider repository={repository}>
-      <SidebarLayout activeView={activeView} onViewChange={setActiveView}>
+      <SidebarLayout
+        activeView={activeView}
+        onViewChange={setActiveView}
+        spacing={designTokens.spacing}
+      >
         <PropertyGrid activeView={activeView} />
       </SidebarLayout>
     </GeoLocationProvider>

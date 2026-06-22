@@ -32,7 +32,7 @@ describe('Layout Component', () => {
       .${layoutStyles.sidebar} {
         display: flex;
         flex-direction: column;
-        width: var(--sidebar-width, 260px);
+        width: var(--sidebar-width, var(--layout-sidebar-width, 280px));
         flex-shrink: 0;
         overflow-y: auto;
       }
@@ -79,14 +79,22 @@ describe('Layout Component', () => {
       saveGeoLocation: vi.fn(),
     });
 
-    render(<Layout />);
+    const mockSpacing = {
+      'layout-min-pane-size': '150px',
+      'layout-sidebar-width': '280px',
+    };
+    render(<Layout spacing={mockSpacing} />);
     const sidebar = screen.getByTestId('sidebar-nav');
     expect(sidebar).toBeInTheDocument();
+
+    const wrapper = screen.getByTestId('layout-wrapper');
+    expect(wrapper).toHaveStyle('--layout-min-pane-size: 150px');
+    expect(wrapper).toHaveStyle('--layout-sidebar-width: 280px');
 
     const computed = window.getComputedStyle(sidebar);
     expect(computed.display).toBe('flex');
     expect(computed.flexDirection).toBe('column');
-    expect(computed.width).toBe('var(--sidebar-width, 260px)');
+    expect(computed.width).toBe('var(--sidebar-width, var(--layout-sidebar-width, 280px))');
     expect(computed.flexShrink).toBe('0');
     expect(computed.overflowY).toBe('auto');
   });
@@ -140,9 +148,18 @@ describe('Layout Component', () => {
       saveGeoLocation: vi.fn(),
     });
 
-    render(<Layout />);
+    const mockSpacing = {
+      'layout-min-pane-size': '150px',
+      'layout-sidebar-width': '280px',
+    };
+
+    render(<Layout spacing={mockSpacing} />);
     const wrapper = screen.getByTestId('layout-wrapper');
     const splitter = screen.getByTestId('layout-splitter');
+
+    // Verify style properties on wrapper
+    expect(wrapper).toHaveStyle('--layout-min-pane-size: 150px');
+    expect(wrapper).toHaveStyle('--layout-sidebar-width: 280px');
 
     // Mock bounding rect for wrapper
     wrapper.getBoundingClientRect = vi.fn().mockReturnValue({
@@ -162,9 +179,9 @@ describe('Layout Component', () => {
     fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 300 });
     expect(wrapper).toHaveStyle('--sidebar-width: 300px');
 
-    // Move below minimum bounds (e.g. 100px) - should clamp to 180px
+    // Move below minimum bounds (e.g. 100px) - should clamp to 150px (spacing.layout-min-pane-size)
     fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 100 });
-    expect(wrapper).toHaveStyle('--sidebar-width: 180px');
+    expect(wrapper).toHaveStyle('--sidebar-width: 150px');
 
     // Move above maximum bounds (e.g. 700px) - should clamp to 600px
     fireEvent.pointerMove(splitter, { pointerId: 1, clientX: 700 });
@@ -187,10 +204,19 @@ describe('Layout Component', () => {
       saveGeoLocation: vi.fn(),
     });
 
-    render(<Layout />);
+    const mockSpacing = {
+      'layout-min-pane-size': '150px',
+      'layout-sidebar-width': '280px',
+    };
+
+    render(<Layout spacing={mockSpacing} />);
     const mainWorkspace = screen.getByTestId('workspace-content');
     const splitter = screen.getByTestId('workspace-splitter');
     const wrapper = screen.getByTestId('layout-wrapper');
+
+    // Verify style properties on wrapper
+    expect(wrapper).toHaveStyle('--layout-min-pane-size: 150px');
+    expect(wrapper).toHaveStyle('--layout-sidebar-width: 280px');
 
     // Case 1: Workspace height is 800px
     mainWorkspace.getBoundingClientRect = vi.fn().mockReturnValue({
@@ -210,13 +236,13 @@ describe('Layout Component', () => {
     fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 350 });
     expect(wrapper).toHaveStyle('--topology-height: 350px');
 
-    // Move below minimum bounds (e.g. 100px) - should clamp to 200px
+    // Move below minimum bounds (e.g. 100px) - should clamp to 150px
     fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 100 });
-    expect(wrapper).toHaveStyle('--topology-height: 200px');
+    expect(wrapper).toHaveStyle('--topology-height: 150px');
 
-    // Move above maximum bounds (e.g. 700px) - should clamp to 600px
+    // Move above maximum bounds (e.g. 700px) - should clamp to 650px (800 - 150)
     fireEvent.pointerMove(splitter, { pointerId: 2, clientY: 700 });
-    expect(wrapper).toHaveStyle('--topology-height: 600px');
+    expect(wrapper).toHaveStyle('--topology-height: 650px');
 
     // End drag
     fireEvent.pointerUp(splitter, { pointerId: 2 });
@@ -236,13 +262,13 @@ describe('Layout Component', () => {
     fireEvent.pointerDown(splitter, { pointerId: 4 });
     expect(splitter.setPointerCapture).toHaveBeenCalledWith(4);
 
-    // Move within bounds up to 800px (e.g. 800px) - should be 800px
+    // Move within bounds up to 850px (e.g. 800px) - should be 800px
     fireEvent.pointerMove(splitter, { pointerId: 4, clientY: 800 });
     expect(wrapper).toHaveStyle('--topology-height: 800px');
 
-    // Move above maximum bounds (e.g. 900px) - should clamp to 800px
+    // Move above maximum bounds (e.g. 900px) - should clamp to 850px (1000 - 150)
     fireEvent.pointerMove(splitter, { pointerId: 4, clientY: 900 });
-    expect(wrapper).toHaveStyle('--topology-height: 800px');
+    expect(wrapper).toHaveStyle('--topology-height: 850px');
 
     // End drag
     fireEvent.pointerUp(splitter, { pointerId: 4 });
