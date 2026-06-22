@@ -11,6 +11,30 @@ from .validators.uml import UmlValidator
 from .validators.behavioral import BehavioralValidator
 from .validators.codebase import CodebaseValidator
 from .validators.docs import DocsValidator
+from .validators.dependency_validator import DependencyValidator
+from .validators.sync_validator import SyncValidator
+from .validators.schema_mapping_validator import SchemaMappingValidator
+from .validators.profile_scoping_validator import ProfileScopingValidator
+from .validators.test_completeness_validator import TestCompletenessValidator
+from .utils.diagnostics import serialize_diagnostics
+
+def get_open_feature_issues() -> list:
+    import subprocess
+    import json
+    try:
+        result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--label", "feature", "--json", "number,title"],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+        else:
+            print(f"Warning: gh CLI exited with code {result.returncode}: {result.stderr.strip()}")
+            return []
+    except Exception as e:
+        print(f"Warning: Failed to run gh CLI to fetch open feature issues: {e}")
+        return []
 
 def main():
     parser = argparse.ArgumentParser(description="Model Coverage Parity Audit CLI")
@@ -145,6 +169,31 @@ def main():
     features = repo.get_feature_files(features_dir)
     print(f"Loaded {len(features)} feature specifications.\n")
     
+    # Cross-reference local docs/features/ spec files against open feature issues fetched via gh CLI
+    open_issues = get_open_feature_issues()
+    missing_specs = []
+    for issue in open_issues:
+        issue_number = issue.get("number")
+        issue_title = issue.get("title", "")
+        found = False
+        for f in features:
+            basename = os.path.splitext(f.filename)[0]
+            numbers_in_filename = [int(x) for x in re.findall(r'\d+', basename)]
+            if issue_number in numbers_in_filename:
+                found = True
+                break
+            if f"#{issue_number}" in f.content or f"issue {issue_number}" in f.content.lower():
+                found = True
+                break
+        if not found:
+            missing_specs.append(f"Issue #{issue_number}: '{issue_title}'")
+            
+    if missing_specs:
+        print("[!] Missing local specification files for open feature issues:")
+        for spec in missing_specs:
+            print(f"  - {spec}")
+        sys.exit(1)
+    
     skip_coverage_checks = False
     if args.spec_only or not features:
         if args.spec_only:
@@ -198,6 +247,24 @@ def main():
                                     codebase_contents.append(f.read())
                             except Exception:
                                 pass
+
+        react_dir_exists = False
+        react_dir_name = rules.target_directories.react
+        if react_dir_name:
+            react_dir = os.path.join(repo.workspace_dir, react_dir_name)
+            if os.path.exists(react_dir):
+                react_dir_exists = True
+                
+        flutter_dir_exists = False
+        flutter_dir_name = rules.target_directories.flutter
+        if flutter_dir_name:
+            flutter_dir = os.path.join(repo.workspace_dir, flutter_dir_name)
+            if os.path.exists(flutter_dir):
+                flutter_dir_exists = True
+                
+        if (react_dir_exists or flutter_dir_exists) and not codebase_contents:
+            print("[!] Error: Target codebase directories exist but contain no source files.")
+            has_failed = True
 
         # Helper to generate variants for a name
         def get_variants(name: str) -> Set[str]:
@@ -338,7 +405,92 @@ def main():
     else:
         print("Success: Documentation consistency checks passed.")
         
+    print("\n=== Schema Dependency Validation ===")
+    dependency_validator = DependencyValidator()
+    dependency_errors = dependency_validator.validate(repo, schema_dir=schema_dir)
+    
+    if dependency_errors:
+        print("[!] Schema Dependency Violations Identified:")
+        for err in dependency_errors:
+            print(f"  - {err}")
+        has_failed = True
+    else:
+        print("Success: Schema dependency checks passed.")
+        
+    print("\n=== Out-of-Sync Backlog Validation ===")
+    sync_validator = SyncValidator()
+    sync_errors = sync_validator.validate(repo)
+    
+    if sync_errors:
+        print("[!] Out-of-Sync Backlog Violations Identified:")
+        for err in sync_errors:
+            print(f"  - {err}")
+        has_failed = True
+    else:
+        print("Success: Out-of-Sync Backlog checks passed.")
+        
+    print("\n=== Schema Mapping Validation ===")
+    schema_mapping_validator = SchemaMappingValidator()
+    schema_mapping_errors = schema_mapping_validator.validate(repo)
+    if schema_mapping_errors:
+        print("[!] Schema Mapping Violations Identified:")
+        for err in schema_mapping_errors:
+            print(f"  - {err}")
+        has_failed = True
+    else:
+        print("Success: Schema mapping checks passed.")
+
+    print("\n=== Profile Scoping Validation ===")
+    profile_scoping_validator = ProfileScopingValidator()
+    profile_scoping_errors = profile_scoping_validator.validate(repo)
+    if profile_scoping_errors:
+        print("[!] Profile Scoping Violations Identified:")
+        for err in profile_scoping_errors:
+            print(f"  - {err}")
+        has_failed = True
+    else:
+        print("Success: Profile scoping checks passed.")
+
+    print("\n=== Test Completeness Validation ===")
+    test_completeness_validator = TestCompletenessValidator()
+    test_completeness_errors = test_completeness_validator.validate(repo)
+    if test_completeness_errors:
+        print("[!] Test Completeness Violations Identified:")
+        for err in test_completeness_errors:
+            print(f"  - {err}")
+        has_failed = True
+    else:
+        print("Success: Test completeness checks passed.")
+        
     if has_failed:
+        all_errors = (uml_errors or []) + (behavioral_errors or []) + (codebase_errors or []) + (doc_errors or []) + (dependency_errors or []) + (sync_errors or []) + (schema_mapping_errors or []) + (profile_scoping_errors or []) + (test_completeness_errors or [])
+        compiled_errors = all_errors
+        target_file = None
+        snippet_content = None
+        for err in compiled_errors:
+            match = re.search(r'docs/[a-zA-Z0-9_\-/]+\.md', err)
+            if match:
+                rel_path = match.group(0)
+                abs_path = os.path.join(workspace_dir, rel_path)
+                if os.path.exists(abs_path):
+                    target_file = rel_path
+                    try:
+                        with open(abs_path, "r", encoding="utf-8") as f:
+                            snippet_content = f.read()
+                    except Exception:
+                        pass
+                    break
+        
+        serialize_diagnostics(
+            workspace_dir=workspace_dir,
+            tool_name="parity_auditor",
+            exit_code=1,
+            errors=compiled_errors,
+            traceback_str="",
+            target_file=target_file,
+            snippet_content=snippet_content
+        )
+
         upstream_repo = rules.meta.upstream_repository
         if not upstream_repo:
             raise ValueError("Missing 'meta.upstream_repository' in codebase_rules.json")
