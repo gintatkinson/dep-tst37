@@ -1,20 +1,53 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "specification": "Generic Base Color & Typography Tokens"
+    "version": "1.1.0",
+    "specification": "Network Inventory Location UI Design Tokens"
   },
-  "color": {
-    "brand": {
-      "primary": "#1a73e8",
-      "primary-hover": "#1557b0"
+  "branding": {
+    "console-title": "Network Inventory Location"
+  },
+  "themes": {
+    "light": {
+      "bg": "#f8f9fa",
+      "surface": "#ffffff",
+      "text": "#3c4043",
+      "text-h": "#202124",
+      "border": "#dadce0",
+      "sidebar-bg": "#ffffff",
+      "active-border": "#1a73e8",
+      "active-bg": "#e8f0fe",
+      "active-text": "#1a73e8",
+      "card-bg": "#ffffff",
+      "card-border": "#dadce0",
+      "label-color": "#5f6368",
+      "input-border": "#dadce0",
+      "input-focus-border": "#1a73e8",
+      "button-bg": "#1a73e8",
+      "button-hover-bg": "#1557b0",
+      "button-text": "#ffffff",
+      "status-dot-active": "#10b981",
+      "status-dot-neutral": "#64748b"
     },
-    "background": {
-      "light": "#ffffff",
-      "dark": "#121212"
-    },
-    "surface": {
-      "light": "#f1f3f4",
-      "dark": "#202124"
+    "dark": {
+      "bg": "#121212",
+      "surface": "#1e1f22",
+      "text": "#9aa0a6",
+      "text-h": "#f1f5f9",
+      "border": "#3c3f41",
+      "sidebar-bg": "#1e1f22",
+      "active-border": "#8ab4f8",
+      "active-bg": "rgba(26, 115, 232, 0.1)",
+      "active-text": "#8ab4f8",
+      "card-bg": "#2b2d31",
+      "card-border": "#3c3f41",
+      "label-color": "#9aa0a6",
+      "input-border": "#3c3f41",
+      "input-focus-border": "#8ab4f8",
+      "button-bg": "#1a73e8",
+      "button-hover-bg": "#1557b0",
+      "button-text": "#ffffff",
+      "status-dot-active": "#10b981",
+      "status-dot-neutral": "#64748b"
     }
   },
   "spacing": {
