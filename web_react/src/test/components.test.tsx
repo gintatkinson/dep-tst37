@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Layout } from '../components/layout';
+import { Header } from '../components/header';
 import { PropertyGrid } from '../components/property-grid';
 import { TopologyMap } from '../components/topology-map';
 import { useGeoLocation } from '../context/GeoLocationContext';
@@ -747,5 +748,56 @@ describe('TopologyMap Component', () => {
     render(<TopologyMap />);
     expect(screen.getByTestId('coordinate-marker')).toBeInTheDocument();
     expect(screen.getByTestId('info-label')).toHaveTextContent('X: 1234567.123456, Y: -7654321.654321, Z: 0.123456');
+  });
+});
+
+describe('Header Component', () => {
+  it('renders Google Cloud-style header bar with all elements', () => {
+    const onMenuClickMock = vi.fn();
+    render(<Header onMenuClick={onMenuClickMock} />);
+
+    expect(screen.getByTestId('gcp-header')).toBeInTheDocument();
+    expect(screen.getByText('Google Cloud')).toBeInTheDocument();
+    expect(screen.getByTestId('project-selector')).toHaveTextContent('ietf-ni-location');
+    expect(screen.getByPlaceholderText('Search resources, services, and products')).toBeInTheDocument();
+    expect(screen.getByTestId('cloud-shell-button')).toBeInTheDocument();
+    expect(screen.getByTestId('notifications-button')).toBeInTheDocument();
+    expect(screen.getByTestId('help-button')).toBeInTheDocument();
+    expect(screen.getByTestId('settings-button')).toBeInTheDocument();
+    expect(screen.getByTestId('user-avatar')).toHaveTextContent('G');
+
+    // Click menu toggle
+    const toggleButton = screen.getByTestId('menu-toggle-button');
+    fireEvent.click(toggleButton);
+    expect(onMenuClickMock).toHaveBeenCalled();
+  });
+});
+
+describe('Layout Sidebar Collapse Integration', () => {
+  it('should toggle collapsible sidebar when header menu button is clicked', () => {
+    vi.mocked(useGeoLocation).mockReturnValue({
+      geoLocation: null,
+      loading: false,
+      error: null,
+      saveGeoLocation: vi.fn(),
+    });
+
+    render(<Layout />);
+    const sidebar = screen.getByTestId('sidebar-nav');
+    expect(sidebar.className).not.toContain('collapsed');
+
+    // Toggle collapse
+    const toggleButton = screen.getByTestId('menu-toggle-button');
+    fireEvent.click(toggleButton);
+    expect(sidebar.className).toContain('collapsed');
+
+    // Labels should be hidden
+    expect(screen.queryByText('Geodetic System')).not.toBeInTheDocument();
+    expect(screen.queryByText('Alternate System')).not.toBeInTheDocument();
+
+    // Toggle again
+    fireEvent.click(toggleButton);
+    expect(sidebar.className).not.toContain('collapsed');
+    expect(screen.getByText('Geodetic System')).toBeInTheDocument();
   });
 });

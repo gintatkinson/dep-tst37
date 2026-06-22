@@ -216,7 +216,6 @@ export const PropertyGrid: React.FC<PropertyGridProps> = ({ activeView = 'all' }
       </div>
     );
   };
-
   const coordTypeError = getErrorForField('coordinateType');
 
   return (
@@ -225,57 +224,73 @@ export const PropertyGrid: React.FC<PropertyGridProps> = ({ activeView = 'all' }
       onSubmit={handleSubmit}
       className={styles.form}
     >
-      {/* Reference Frame Parameters */}
-      {renderField('astronomicalBody', 'Astronomical Body')}
-      {activeView !== 'geodetic' && renderField('alternateSystem', 'Alternate System')}
-      {activeView !== 'alternate' && renderField('geodeticDatum', 'Geodetic Datum')}
-      {activeView !== 'alternate' && renderField('coordAccuracy', 'Coordinate Accuracy', 'number', 'any')}
-      {activeView !== 'alternate' && renderField('heightAccuracy', 'Height Accuracy', 'number', 'any')}
-
-      {/* Coordinate Type Dropdown */}
-      <div className={styles.fieldContainer}>
-        <label htmlFor="coordinateType" className={styles.label}>
-          Coordinate Type
-        </label>
-        <select
-          id="coordinateType"
-          name="coordinateType"
-          value={coordType}
-          onChange={handleCoordTypeChange}
-          onBlur={handleBlur}
-          className={coordTypeError ? styles.inputError : styles.input}
-          data-testid="coordinate-type-select"
-        >
-          <option value="">Unconfigured</option>
-          <option value="ellipsoid">Ellipsoid</option>
-          <option value="cartesian">Cartesian</option>
-        </select>
-        {coordTypeError && (
-          <span
-            data-testid="error-coordinateType"
-            className={styles.errorMessage}
-          >
-            {coordTypeError}
-          </span>
-        )}
+      <div className={styles.formHeader}>
+        <h1 className={styles.formTitle}>Location Configuration</h1>
+        <div className={styles.autoSaveBadge} data-testid="autosave-badge">
+          <span className={styles.greenDot}></span>
+          <span>Auto-saved</span>
+        </div>
       </div>
 
-      {/* Choice-Exclusive Coordinate Fields */}
-      {coordType === 'ellipsoid' && (
-        <>
-          {renderField('latitude', 'Latitude', 'text')}
-          {renderField('longitude', 'Longitude', 'text')}
-          {renderField('height', 'Height', 'text')}
-        </>
-      )}
+      {/* Card 1: Reference Frame Settings */}
+      <div className={styles.card} data-testid="reference-frame-card">
+        <h2 className={styles.cardTitle}>Reference Frame</h2>
+        {renderField('astronomicalBody', 'Astronomical Body')}
+        {activeView !== 'geodetic' && renderField('alternateSystem', 'Alternate System')}
+        {activeView !== 'alternate' && renderField('geodeticDatum', 'Geodetic Datum')}
+        {activeView !== 'alternate' && renderField('coordAccuracy', 'Coordinate Accuracy', 'number', 'any')}
+        {activeView !== 'alternate' && renderField('heightAccuracy', 'Height Accuracy', 'number', 'any')}
+      </div>
 
-      {coordType === 'cartesian' && (
-        <>
-          {renderField('x', 'X Coordinate', 'text')}
-          {renderField('y', 'Y Coordinate', 'text')}
-          {renderField('z', 'Z Coordinate', 'text')}
-        </>
-      )}
+      {/* Card 2: Location Coordinates */}
+      <div className={styles.card} data-testid="coordinates-card">
+        <h2 className={styles.cardTitle}>Coordinates</h2>
+        
+        {/* Coordinate Type Dropdown */}
+        <div className={styles.fieldContainer}>
+          <label htmlFor="coordinateType" className={styles.label}>
+            Coordinate Type
+          </label>
+          <select
+            id="coordinateType"
+            name="coordinateType"
+            value={coordType}
+            onChange={handleCoordTypeChange}
+            onBlur={handleBlur}
+            className={coordTypeError ? styles.inputError : styles.input}
+            data-testid="coordinate-type-select"
+          >
+            <option value="">Unconfigured</option>
+            <option value="ellipsoid">Ellipsoid</option>
+            <option value="cartesian">Cartesian</option>
+          </select>
+          {coordTypeError && (
+            <span
+              data-testid="error-coordinateType"
+              className={styles.errorMessage}
+            >
+              {coordTypeError}
+            </span>
+          )}
+        </div>
+
+        {/* Choice-Exclusive Coordinate Fields */}
+        {coordType === 'ellipsoid' && (
+          <>
+            {renderField('latitude', 'Latitude', 'text')}
+            {renderField('longitude', 'Longitude', 'text')}
+            {renderField('height', 'Height', 'text')}
+          </>
+        )}
+
+        {coordType === 'cartesian' && (
+          <>
+            {renderField('x', 'X Coordinate', 'text')}
+            {renderField('y', 'Y Coordinate', 'text')}
+            {renderField('z', 'Z Coordinate', 'text')}
+          </>
+        )}
+      </div>
 
       <button type="submit" className={styles.submitButton}>
         Save

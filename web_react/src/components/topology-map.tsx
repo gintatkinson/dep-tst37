@@ -92,6 +92,35 @@ export const TopologyMap: React.FC = (): React.ReactElement => {
 
       <div className={styles.mapArea} data-testid="map-area">
         <div className={styles.scanline} />
+        
+        {/* Console Dashboard Overlay */}
+        <div className={styles.dashboardOverlay} data-testid="dashboard-overlay">
+          <div className={styles.dashboardMetric}>
+            <span className={styles.metricLabel}>Datum:</span>
+            <span className={styles.metricValue}>
+              {geoLocation?.referenceFrame?.geodeticSystem?.geodeticDatum || 'WGS-84'}
+            </span>
+          </div>
+          <div className={styles.dashboardMetric}>
+            <span className={styles.metricLabel}>System:</span>
+            <span className={styles.metricValue}>
+              {hasEllipsoid ? 'Ellipsoidal' : hasCartesian ? 'Cartesian' : 'Unconfigured'}
+            </span>
+          </div>
+          <div className={styles.dashboardMetric}>
+            <span className={styles.metricLabel}>Status:</span>
+            <div className={styles.dashboardStatus}>
+              <span
+                data-testid="dashboard-status-dot"
+                className={`${styles.dashboardStatusDot} ${
+                  isConfigured ? styles.statusDotActivePulse : styles.statusDotNeutral
+                }`}
+              />
+              <span className={styles.metricValue}>{isConfigured ? 'RESOLVED' : 'UNCONFIGURED'}</span>
+            </div>
+          </div>
+        </div>
+
         <svg viewBox="0 0 800 800" className={styles.svgMap} data-testid="svg-grid">
           {/* Background grid */}
           <g>{gridLines}</g>
